@@ -31,27 +31,25 @@ public partial class ScreenCapture : IDisposable
     private VertexShader _vertexShader;
     private int? _sourceAdapterIndex;
     private int? _sourceOutputIndex;
+    private int _frameRate;
+    private int _targetViewportWidth;
+    private int _targetViewportHeight;
 
-    public ScreenCapture(int blurRadiusR = 0, int blurRadiusG = 0, int blurRadiusB = 0, float blurSigmaR = 1, float blurSigmaG = 1, float blurSigmaB = 1, nint? hwnd = null, int? srcAdapterIndex = null, int? sourceOutputIndex = null)
+    public ScreenCapture(float blurScaleR = 0, float blurScaleG = 0, float blurScaleB = 0, float blurSigmaR = 1, float blurSigmaG = 1, float blurSigmaB = 1, nint? hwnd = null, int? srcAdapterIndex = null, int? sourceOutputIndex = null, int? frameRate = 30, int? targetViewportWidth = 1920, int? targetViewportHeight = 1080)
     {
-        BlurRadiusR = blurRadiusR;
-        BlurRadiusG = blurRadiusG;
-        BlurRadiusB = blurRadiusB;
-        BlurSigmaR = blurSigmaR;
-        BlurSigmaG = blurSigmaG;
-        BlurSigmaB = blurSigmaB;
+        blurParams = new BlurParams(1920, 1080, blurScaleR, blurScaleG, blurScaleB, blurSigmaR, blurSigmaG, blurSigmaB);
         _sourceAdapterIndex = srcAdapterIndex;
         _sourceOutputIndex = sourceOutputIndex;
+        _frameRate = frameRate ?? 30;
+        _targetViewportWidth = targetViewportWidth ?? 1920;
+        _targetViewportHeight = targetViewportHeight ?? 1080;
         if (hwnd != null) Initialize(hwnd.Value);
+
     }
 
-    public int BlurRadiusB { get; init; } = 1;
-    public int BlurRadiusG { get; init; } = 5;
-    public int BlurRadiusR { get; init; } = 13;
 
-    public float BlurSigmaB { get; init; } = 0.5f;
-    public float BlurSigmaG { get; init; } = 0.1f;
-    public float BlurSigmaR { get; init; } = 10f;
+    private BlurParams blurParams;
+
 
     public void CaptureScreen()
     {
@@ -106,7 +104,7 @@ public partial class ScreenCapture : IDisposable
         _adapter = dxgiFactory.Adapters[_sourceAdapterIndex ?? 0];
         _device = new Device(_adapter, DeviceCreationFlags.None, FeatureLevel.Level_11_0).QueryInterface<SharpDX.Direct3D11.Device1>();
 
-        var output = _adapter.Outputs[_sourceOutputIndex ?? 0];
+        using var output = _adapter.Outputs[_sourceOutputIndex ?? 0];
         // 使用 Output1（DXGI 1.2）以支持桌面复制
         using (var output1 = output.QueryInterface<Output1>())
         {
@@ -122,10 +120,10 @@ public partial class ScreenCapture : IDisposable
         var swapChainDescription = new SwapChainDescription()
         {
             ModeDescription = new ModeDescription(
-            _screenWidth,          // 后台缓冲区宽度
-            _screenHeight,          // 后台缓冲区高度
-            new Rational(30, 1), // 刷新率 (分子, 分母)，例如 60Hz
-            Format.B8G8R8A8_UNorm     //   Format.R8G8B8A8_UNorm // 像素格式，最常用的格式之一
+            _targetViewportWidth,          // 后台缓冲区宽度
+            _targetViewportHeight,          // 后台缓冲区高度
+            new Rational(_frameRate, 1), // 刷新率 (分子, 分母)，例如 60Hz
+            Format.B8G8R8A8_UNorm // 像素格式，最常用的格式之一
                                                  ),
             BufferCount = 1,
             IsWindowed = true,
@@ -144,8 +142,8 @@ public partial class ScreenCapture : IDisposable
         // 创建深度缓冲区
         var depthStencilTexture = new Texture2D(_device, new Texture2DDescription()
         {
-            Width = _screenWidth,
-            Height = _screenHeight,
+            Width = _targetViewportWidth,
+            Height = _targetViewportHeight,
             MipLevels = 1,
             ArraySize = 1,
             Format = Format.D24_UNorm_S8_UInt,
@@ -218,8 +216,8 @@ public partial class ScreenCapture : IDisposable
             StructureByteStride = 0
         });
 
-        // 更新屏幕尺寸常量缓冲区
-        var blurParams = new BlurParams(_screenWidth, _screenHeight, BlurRadiusR, BlurRadiusG, BlurRadiusB, BlurSigmaR, BlurSigmaG, BlurSigmaB);
+        // 更新屏幕尺寸常量缓冲区        
+        blurParams = new BlurParams(_screenWidth, _screenHeight, blurParams.BlurScaleR, blurParams.BlurScaleG, blurParams.BlurScaleB, blurParams.BlurSigmaR, blurParams.BlurSigmaG, blurParams.BlurSigmaB);
         _device.ImmediateContext.UpdateSubresource(ref blurParams, _blurParamsBuffer);
         _device.ImmediateContext.PixelShader.SetConstantBuffer(0, _blurParamsBuffer);
 
@@ -264,7 +262,7 @@ public partial class ScreenCapture : IDisposable
         _device.ImmediateContext.OutputMerger.SetTargets(_depthStencilView, _renderTargetView);
 
         // 设置视口（使用实际屏幕分辨率）
-        var viewport = new Viewport(0, 0, _screenWidth, _screenHeight, 0.0f, 1.0f);
+        var viewport = new Viewport(0, 0, _targetViewportWidth, _targetViewportHeight, 0.0f, 1.0f);
         _device.ImmediateContext.Rasterizer.SetViewports([viewport]);
 
         // 清除渲染目标

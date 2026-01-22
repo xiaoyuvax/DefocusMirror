@@ -5,6 +5,8 @@ namespace DefocusMirror;
 public static class PixelSizeCalculator
 {
 
+
+
     /// <summary>
     /// 一个简单的估算法是使用系统DPI设置。系统DPI（通常为96 DPI）定义了系统认为的“每逻辑英寸的像素数”。你可以通过以下代码获取DPI，然后进行估算
     /// </summary>

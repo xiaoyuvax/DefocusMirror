@@ -32,6 +32,16 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ControlBox));
             tabControl1 = new TabControl();
             tabPage1 = new TabPage();
+            pnlGraph = new Panel();
+            groupBox1 = new GroupBox();
+            panel1 = new Panel();
+            label12 = new Label();
+            label11 = new Label();
+            label10 = new Label();
+            label8 = new Label();
+            label7 = new Label();
+            label9 = new Label();
+            btnClose0 = new Button();
             btnBlue = new Button();
             btnRed = new Button();
             tabPage2 = new TabPage();
@@ -58,20 +68,23 @@
             toolStrip1 = new ToolStrip();
             toolStripLabel1 = new ToolStripLabel();
             tscboFrom = new ToolStripComboBox();
+            tscboOutput = new ToolStripComboBox();
             toolStripLabel2 = new ToolStripLabel();
             tscboTo = new ToolStripComboBox();
-            tslDistance = new ToolStripLabel();
-            tscboDistance = new ToolStripComboBox();
-            tslBlurCircles = new ToolStripLabel();
+            toolStripLabel3 = new ToolStripLabel();
+            tscboFrameRate = new ToolStripComboBox();
+            tsbFullScreen = new ToolStripButton();
+            toolStripSeparator1 = new ToolStripSeparator();
             notifyIcon1 = new NotifyIcon(components);
             cmsNotify = new ContextMenuStrip(components);
             tsmiClose = new ToolStripMenuItem();
             tsmiShowControlBox = new ToolStripMenuItem();
             toolStripMenuItem1 = new ToolStripSeparator();
             tsmiExit = new ToolStripMenuItem();
-            tscboOutput = new ToolStripComboBox();
             tabControl1.SuspendLayout();
             tabPage1.SuspendLayout();
+            groupBox1.SuspendLayout();
+            panel1.SuspendLayout();
             tabPage2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)numSigmaB).BeginInit();
             ((System.ComponentModel.ISupportInitialize)numSigmaG).BeginInit();
@@ -97,38 +110,148 @@
             tabControl1.Location = new Point(0, 25);
             tabControl1.Name = "tabControl1";
             tabControl1.SelectedIndex = 0;
-            tabControl1.Size = new Size(800, 425);
+            tabControl1.Size = new Size(976, 425);
             tabControl1.TabIndex = 0;
             // 
             // tabPage1
             // 
+            tabPage1.BackColor = SystemColors.Control;
+            tabPage1.Controls.Add(pnlGraph);
+            tabPage1.Controls.Add(groupBox1);
+            tabPage1.Controls.Add(btnClose0);
             tabPage1.Controls.Add(btnBlue);
             tabPage1.Controls.Add(btnRed);
             tabPage1.Location = new Point(4, 26);
             tabPage1.Name = "tabPage1";
             tabPage1.Padding = new Padding(3);
-            tabPage1.Size = new Size(792, 395);
+            tabPage1.Size = new Size(968, 395);
             tabPage1.TabIndex = 0;
             tabPage1.Text = "快速启动";
-            tabPage1.UseVisualStyleBackColor = true;
+            // 
+            // pnlGraph
+            // 
+            pnlGraph.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            pnlGraph.AutoScroll = true;
+            pnlGraph.BackColor = Color.LightYellow;
+            pnlGraph.Location = new Point(0, 0);
+            pnlGraph.Name = "pnlGraph";
+            pnlGraph.Size = new Size(705, 392);
+            pnlGraph.TabIndex = 3;
+            pnlGraph.Resize += pnlGraph_Resize;
+            // 
+            // groupBox1
+            // 
+            groupBox1.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            groupBox1.Controls.Add(panel1);
+            groupBox1.Location = new Point(714, 269);
+            groupBox1.Name = "groupBox1";
+            groupBox1.Size = new Size(237, 118);
+            groupBox1.TabIndex = 2;
+            groupBox1.TabStop = false;
+            groupBox1.Text = "参考像素";
+            // 
+            // panel1
+            // 
+            panel1.BackColor = Color.Black;
+            panel1.Controls.Add(label12);
+            panel1.Controls.Add(label11);
+            panel1.Controls.Add(label10);
+            panel1.Controls.Add(label8);
+            panel1.Controls.Add(label7);
+            panel1.Controls.Add(label9);
+            panel1.Dock = DockStyle.Fill;
+            panel1.Location = new Point(3, 19);
+            panel1.Name = "panel1";
+            panel1.Size = new Size(231, 96);
+            panel1.TabIndex = 5;
+            // 
+            // label12
+            // 
+            label12.AutoSize = true;
+            label12.Font = new Font("Microsoft YaHei UI", 12F, FontStyle.Bold);
+            label12.ForeColor = Color.Blue;
+            label12.Location = new Point(162, 27);
+            label12.Name = "label12";
+            label12.Size = new Size(49, 22);
+            label12.TabIndex = 5;
+            label12.Text = "蓝(B)";
+            // 
+            // label11
+            // 
+            label11.AutoSize = true;
+            label11.Font = new Font("Microsoft YaHei UI", 12F, FontStyle.Bold);
+            label11.ForeColor = Color.Lime;
+            label11.Location = new Point(92, 27);
+            label11.Name = "label11";
+            label11.Size = new Size(50, 22);
+            label11.TabIndex = 5;
+            label11.Text = "绿(G)";
+            // 
+            // label10
+            // 
+            label10.AutoSize = true;
+            label10.Font = new Font("Microsoft YaHei UI", 12F, FontStyle.Bold);
+            label10.ForeColor = Color.Red;
+            label10.Location = new Point(25, 27);
+            label10.Name = "label10";
+            label10.Size = new Size(49, 22);
+            label10.TabIndex = 5;
+            label10.Text = "红(R)";
+            // 
+            // label8
+            // 
+            label8.BackColor = Color.Lime;
+            label8.Location = new Point(111, 67);
+            label8.Name = "label8";
+            label8.Size = new Size(1, 1);
+            label8.TabIndex = 3;
+            // 
+            // label7
+            // 
+            label7.BackColor = Color.Red;
+            label7.Location = new Point(43, 67);
+            label7.Name = "label7";
+            label7.Size = new Size(1, 1);
+            label7.TabIndex = 2;
+            // 
+            // label9
+            // 
+            label9.BackColor = Color.Blue;
+            label9.Location = new Point(179, 67);
+            label9.Name = "label9";
+            label9.Size = new Size(1, 1);
+            label9.TabIndex = 4;
+            // 
+            // btnClose0
+            // 
+            btnClose0.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            btnClose0.Location = new Point(714, 213);
+            btnClose0.Name = "btnClose0";
+            btnClose0.Size = new Size(234, 50);
+            btnClose0.TabIndex = 0;
+            btnClose0.Text = "关";
+            btnClose0.UseVisualStyleBackColor = true;
+            btnClose0.Click += btnClose_Click;
             // 
             // btnBlue
             // 
-            btnBlue.Location = new Point(253, 29);
+            btnBlue.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            btnBlue.Location = new Point(717, 83);
             btnBlue.Name = "btnBlue";
-            btnBlue.Size = new Size(184, 171);
+            btnBlue.Size = new Size(234, 50);
             btnBlue.TabIndex = 0;
-            btnBlue.Text = "远";
+            btnBlue.Text = "远视离焦/(R15:G3:B1px)";
             btnBlue.UseVisualStyleBackColor = true;
             btnBlue.Click += btnBlue_Click;
             // 
             // btnRed
             // 
-            btnRed.Location = new Point(36, 29);
+            btnRed.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            btnRed.Location = new Point(717, 17);
             btnRed.Name = "btnRed";
-            btnRed.Size = new Size(184, 171);
+            btnRed.Size = new Size(234, 50);
             btnRed.TabIndex = 0;
-            btnRed.Text = "近";
+            btnRed.Text = "近视离焦/(R1:G3:B15px)";
             btnRed.UseVisualStyleBackColor = true;
             btnRed.Click += btnRed_Click;
             // 
@@ -158,7 +281,7 @@
             tabPage2.Location = new Point(4, 26);
             tabPage2.Name = "tabPage2";
             tabPage2.Padding = new Padding(3);
-            tabPage2.Size = new Size(792, 395);
+            tabPage2.Size = new Size(815, 395);
             tabPage2.TabIndex = 1;
             tabPage2.Text = "高级设置";
             // 
@@ -223,7 +346,7 @@
             numSigmaB.Name = "numSigmaB";
             numSigmaB.Size = new Size(68, 32);
             numSigmaB.TabIndex = 1;
-            numSigmaB.Value = new decimal(new int[] { 1, 0, 0, 131072 });
+            numSigmaB.Value = new decimal(new int[] { 1, 0, 0, 0 });
             numSigmaB.ValueChanged += numSigmaB_ValueChanged;
             // 
             // label1
@@ -247,7 +370,7 @@
             numSigmaG.Name = "numSigmaG";
             numSigmaG.Size = new Size(68, 32);
             numSigmaG.TabIndex = 1;
-            numSigmaG.Value = new decimal(new int[] { 1, 0, 0, 131072 });
+            numSigmaG.Value = new decimal(new int[] { 1, 0, 0, 0 });
             numSigmaG.ValueChanged += numSigmaG_ValueChanged;
             // 
             // numScaleB
@@ -260,6 +383,7 @@
             numScaleB.Name = "numScaleB";
             numScaleB.Size = new Size(68, 32);
             numScaleB.TabIndex = 1;
+            numScaleB.Value = new decimal(new int[] { 3, 0, 0, 0 });
             numScaleB.ValueChanged += numScaleB_ValueChanged;
             numScaleB.Click += numScaleB_Click;
             // 
@@ -274,7 +398,7 @@
             numSigmaR.Name = "numSigmaR";
             numSigmaR.Size = new Size(68, 32);
             numSigmaR.TabIndex = 1;
-            numSigmaR.Value = new decimal(new int[] { 1, 0, 0, 131072 });
+            numSigmaR.Value = new decimal(new int[] { 1, 0, 0, 0 });
             numSigmaR.ValueChanged += numSigmaR_ValueChanged;
             // 
             // numScaleG
@@ -287,6 +411,7 @@
             numScaleG.Name = "numScaleG";
             numScaleG.Size = new Size(68, 32);
             numScaleG.TabIndex = 1;
+            numScaleG.Value = new decimal(new int[] { 1, 0, 0, 0 });
             numScaleG.ValueChanged += numScaleG_ValueChanged;
             numScaleG.Click += numScaleG_Click;
             // 
@@ -298,7 +423,7 @@
             trbSigmaB.Name = "trbSigmaB";
             trbSigmaB.Size = new Size(195, 45);
             trbSigmaB.TabIndex = 0;
-            trbSigmaB.Value = 3;
+            trbSigmaB.Value = 10;
             trbSigmaB.Scroll += trbSigmaB_Scroll;
             // 
             // numScaleR
@@ -322,7 +447,7 @@
             trbSigmaG.Name = "trbSigmaG";
             trbSigmaG.Size = new Size(195, 45);
             trbSigmaG.TabIndex = 0;
-            trbSigmaG.Value = 3;
+            trbSigmaG.Value = 10;
             trbSigmaG.Scroll += trbSigmaG_Scroll;
             // 
             // trbScaleB
@@ -332,7 +457,7 @@
             trbScaleB.Name = "trbScaleB";
             trbScaleB.Size = new Size(195, 45);
             trbScaleB.TabIndex = 0;
-            trbScaleB.Value = 5;
+            trbScaleB.Value = 30;
             trbScaleB.Scroll += trbScaleB_Scroll;
             // 
             // trbSigmaR
@@ -343,7 +468,7 @@
             trbSigmaR.Name = "trbSigmaR";
             trbSigmaR.Size = new Size(195, 45);
             trbSigmaR.TabIndex = 0;
-            trbSigmaR.Value = 3;
+            trbSigmaR.Value = 10;
             trbSigmaR.Scroll += trbSigmaR_Scroll;
             // 
             // trbScaleG
@@ -353,7 +478,7 @@
             trbScaleG.Name = "trbScaleG";
             trbScaleG.Size = new Size(195, 45);
             trbScaleG.TabIndex = 0;
-            trbScaleG.Value = 5;
+            trbScaleG.Value = 10;
             trbScaleG.Scroll += trbScaleG_Scroll;
             // 
             // trbScaleR
@@ -363,12 +488,11 @@
             trbScaleR.Name = "trbScaleR";
             trbScaleR.Size = new Size(195, 45);
             trbScaleR.TabIndex = 0;
-            trbScaleR.Value = 5;
             trbScaleR.Scroll += trbScaleR_Scroll;
             // 
             // btnClose
             // 
-            btnClose.Location = new Point(364, 352);
+            btnClose.Location = new Point(377, 329);
             btnClose.Name = "btnClose";
             btnClose.Size = new Size(184, 42);
             btnClose.TabIndex = 0;
@@ -378,7 +502,7 @@
             // 
             // btnCustom
             // 
-            btnCustom.Location = new Point(569, 352);
+            btnCustom.Location = new Point(580, 329);
             btnCustom.Name = "btnCustom";
             btnCustom.Size = new Size(184, 42);
             btnCustom.TabIndex = 0;
@@ -388,10 +512,10 @@
             // 
             // toolStrip1
             // 
-            toolStrip1.Items.AddRange(new ToolStripItem[] { toolStripLabel1, tscboFrom, tscboOutput, toolStripLabel2, tscboTo, tslDistance, tscboDistance, tslBlurCircles });
+            toolStrip1.Items.AddRange(new ToolStripItem[] { toolStripLabel1, tscboFrom, tscboOutput, toolStripLabel2, tscboTo, toolStripLabel3, tscboFrameRate, tsbFullScreen, toolStripSeparator1 });
             toolStrip1.Location = new Point(0, 0);
             toolStrip1.Name = "toolStrip1";
-            toolStrip1.Size = new Size(800, 25);
+            toolStrip1.Size = new Size(976, 25);
             toolStrip1.TabIndex = 1;
             toolStrip1.Text = "toolStrip1";
             // 
@@ -408,6 +532,12 @@
             tscboFrom.Size = new Size(120, 25);
             tscboFrom.SelectedIndexChanged += tscboFrom_SelectedIndexChanged;
             // 
+            // tscboOutput
+            // 
+            tscboOutput.Name = "tscboOutput";
+            tscboOutput.Size = new Size(121, 25);
+            tscboOutput.SelectedIndexChanged += tscboOutput_SelectedIndexChanged;
+            // 
             // toolStripLabel2
             // 
             toolStripLabel2.Name = "toolStripLabel2";
@@ -419,27 +549,41 @@
             tscboTo.DropDownWidth = 200;
             tscboTo.Name = "tscboTo";
             tscboTo.Size = new Size(120, 25);
+            tscboTo.SelectedIndexChanged += tscboTo_SelectedIndexChanged;
             // 
-            // tslDistance
+            // toolStripLabel3
             // 
-            tslDistance.Name = "tslDistance";
-            tslDistance.Size = new Size(60, 22);
-            tslDistance.Text = "Distance:";
+            toolStripLabel3.Name = "toolStripLabel3";
+            toolStripLabel3.Size = new Size(44, 22);
+            toolStripLabel3.Text = "帧率：";
             // 
-            // tscboDistance
+            // tscboFrameRate
             // 
-            tscboDistance.Items.AddRange(new object[] { "2000", "1000", "500" });
-            tscboDistance.Name = "tscboDistance";
-            tscboDistance.Size = new Size(75, 25);
-            tscboDistance.Text = "2000";
-            tscboDistance.SelectedIndexChanged += tscboDistance_SelectedIndexChanged;
-            tscboDistance.KeyDown += tscboDistance_KeyDown;
+            tscboFrameRate.Items.AddRange(new object[] { "30", "50", "60", "25" });
+            tscboFrameRate.Name = "tscboFrameRate";
+            tscboFrameRate.Size = new Size(75, 25);
+            tscboFrameRate.Text = "30";
             // 
-            // tslBlurCircles
+            // tsbFullScreen
             // 
-            tslBlurCircles.Name = "tslBlurCircles";
-            tslBlurCircles.Size = new Size(18, 22);
-            tslBlurCircles.Text = "--";
+            tsbFullScreen.Alignment = ToolStripItemAlignment.Right;
+            tsbFullScreen.Checked = true;
+            tsbFullScreen.CheckOnClick = true;
+            tsbFullScreen.CheckState = CheckState.Checked;
+            tsbFullScreen.DisplayStyle = ToolStripItemDisplayStyle.Text;
+            tsbFullScreen.Image = (Image)resources.GetObject("tsbFullScreen.Image");
+            tsbFullScreen.ImageTransparentColor = Color.Magenta;
+            tsbFullScreen.Name = "tsbFullScreen";
+            tsbFullScreen.Size = new Size(60, 22);
+            tsbFullScreen.Text = "全屏模式";
+            tsbFullScreen.CheckedChanged += tsbFullScreen_CheckedChanged;
+            tsbFullScreen.Click += tsbFullScreen_Click;
+            // 
+            // toolStripSeparator1
+            // 
+            toolStripSeparator1.Alignment = ToolStripItemAlignment.Right;
+            toolStripSeparator1.Name = "toolStripSeparator1";
+            toolStripSeparator1.Size = new Size(6, 25);
             // 
             // notifyIcon1
             // 
@@ -484,23 +628,24 @@
             tsmiExit.Text = "退出(&X)";
             tsmiExit.Click += tsmiExit_Click;
             // 
-            // tscboOutput
-            // 
-            tscboOutput.Name = "tscboOutput";
-            tscboOutput.Size = new Size(121, 25);
-            // 
             // ControlBox
             // 
             AutoScaleDimensions = new SizeF(7F, 17F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(800, 450);
+            ClientSize = new Size(976, 450);
             Controls.Add(tabControl1);
             Controls.Add(toolStrip1);
+            MinimizeBox = false;
             Name = "ControlBox";
             ShowInTaskbar = false;
-            Text = "控制盒";
+            Text = "离焦屏 - 控制盒";
+            Activated += ControlBox_Activated;
+            FormClosing += ControlBox_FormClosing;
             tabControl1.ResumeLayout(false);
             tabPage1.ResumeLayout(false);
+            groupBox1.ResumeLayout(false);
+            panel1.ResumeLayout(false);
+            panel1.PerformLayout();
             tabPage2.ResumeLayout(false);
             tabPage2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)numSigmaB).EndInit();
@@ -560,9 +705,20 @@
         private ToolStripMenuItem tsmiShowControlBox;
         private ToolStripSeparator toolStripMenuItem1;
         private ToolStripMenuItem tsmiExit;
-        private ToolStripLabel tslDistance;
-        private ToolStripComboBox tscboDistance;
-        private ToolStripLabel tslBlurCircles;
         private ToolStripComboBox tscboOutput;
+        private Button btnClose0;
+        private ToolStripLabel toolStripLabel3;
+        private ToolStripComboBox tscboFrameRate;
+        private GroupBox groupBox1;
+        private Label label9;
+        private Label label8;
+        private Label label7;
+        private Panel panel1;
+        private Label label12;
+        private Label label11;
+        private Label label10;
+        private ToolStripButton tsbFullScreen;
+        private ToolStripSeparator toolStripSeparator1;
+        private Panel pnlGraph;
     }
 }

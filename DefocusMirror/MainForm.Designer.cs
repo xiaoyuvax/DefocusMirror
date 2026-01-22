@@ -37,8 +37,12 @@
             ClientSize = new Size(800, 494);
             Name = "MainForm";
             ShowInTaskbar = false;
-            Text = "MainForm";
+            Text = "离焦屏";
+            FormClosed += MainForm_FormClosed;
             Load += MainForm_Load;
+            KeyDown += MainForm_KeyDown;
+            MouseDoubleClick += MainForm_MouseDoubleClick;
+            Resize += MainForm_Resize;
             ResumeLayout(false);
         }
 

@@ -5,6 +5,7 @@ using MapFlags = SharpDX.Direct3D11.MapFlags;
 
 namespace DefocusMirror
 {
+
     public static class TextureExtensions
     {
         public static byte[] GetBuffer(this Texture2D texture)
