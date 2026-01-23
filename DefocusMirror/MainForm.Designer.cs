@@ -40,7 +40,9 @@
             Text = "离焦屏";
             FormClosed += MainForm_FormClosed;
             Load += MainForm_Load;
+            Shown += MainForm_Shown;
             KeyDown += MainForm_KeyDown;
+            MouseClick += MainForm_MouseClick;
             MouseDoubleClick += MainForm_MouseDoubleClick;
             Resize += MainForm_Resize;
             ResumeLayout(false);

@@ -6,15 +6,18 @@ namespace DefocusMirror
     {
         private MainForm _mainForm;
 
+        private static string RemoveUnneededChars(string s) => s.Replace(".", "").Replace("\\", "");
+
         public ControlBox()
         {
             InitializeComponent();
             var dxgiFactory = new Factory1();
             string[] adapters = [.. dxgiFactory.Adapters.Select((i, n) => $"{n} - {i.Description.Description}")];
-            string[] screens = [.. Screen.AllScreens.Select((i, n) => $"{n} - {i.DeviceName}")];
+            string[] screens = [.. Screen.AllScreens.Select((i, n) => $"{n} - {RemoveUnneededChars(i.DeviceName)}")];
             tscboFrom.Items.AddRange(adapters);
             tscboTo.Items.AddRange(screens);
             tscboFrom.SelectedIndex = tscboTo.SelectedIndex = 0;
+            tscboSize.SelectedIndex = 0;
             if (tscboOutput.Text == tscboTo.Text && tscboTo.Items.Count > 1) tscboTo.SelectedIndex = 1;
         }
 
@@ -35,8 +38,8 @@ namespace DefocusMirror
         private void btnBlue_Click(object sender, EventArgs e)
         {
             _mainForm?.Close();
-            _mainForm = CreateNewMainForm(3f, 1f, 0f, 2f, 1f, 1f);
-            _mainForm.Show();
+            _mainForm = CreateNewMainForm(3f, 1f, 0f, 1f, 1f, 1f);
+            _mainForm?.Show();
         }
 
         private void btnClose_Click(object sender, EventArgs e)
@@ -48,16 +51,15 @@ namespace DefocusMirror
         {
             _mainForm?.Close();
             _mainForm = CreateNewMainForm((float)numScaleR.Value, (float)numScaleG.Value, (float)numScaleB.Value, (float)numSigmaR.Value, (float)numSigmaG.Value, (float)numSigmaB.Value);
-            _mainForm.Show();
+            _mainForm?.Show();
         }
 
         private void btnRed_Click(object sender, EventArgs e)
         {
             _mainForm?.Close();
-
-            _mainForm = CreateNewMainForm(0, 1f, 3f, 1f, 1f, 2f);
-
-            _mainForm.Show();
+            _mainForm?.Dispose();
+            _mainForm = CreateNewMainForm(0, 1f, 3f, 1f, 1f, 1f);
+            _mainForm?.Show();
         }
 
         private void cmsNotify_DoubleClick(object sender, EventArgs e)
@@ -70,7 +72,13 @@ namespace DefocusMirror
         }
 
         private MainForm CreateNewMainForm(float blurScaleR = 0, float blurScaleG = 0, float blurScaleB = 0, float blurSigmaR = 1, float blurSigmaG = 1, float blurSigmaB = 1)
-            => new(this, blurScaleR, blurScaleG, blurScaleB, blurSigmaR, blurSigmaG, blurSigmaB, tscboFrom.SelectedIndex, tscboOutput.SelectedIndex, tscboTo.SelectedIndex, ParseFrameRate(), tsbFullScreen.Checked);
+        {
+            var windowSize = tscboSize.Text.Split(['x', 'X', '*']).Select(i => int.TryParse(i, out int s) ? s : 0).ToArray();
+            if (windowSize.Length == 2 && windowSize.All(i => i > 0))
+                return new(this, blurScaleR, blurScaleG, blurScaleB, blurSigmaR, blurSigmaG, blurSigmaB, tscboFrom.SelectedIndex, tscboOutput.SelectedIndex, tscboTo.SelectedIndex, ParseFrameRate(), tsbFullScreen.Checked, new(windowSize[0], windowSize[1]));
+            else MessageBox.Show("离焦屏尺寸错误！请确定数字与格式正确。格式:1920x1080", "初始尺寸", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            return null;
+        }
 
         private void notifyIcon1_MouseDoubleClick(object sender, MouseEventArgs e)
         {
@@ -139,15 +147,18 @@ namespace DefocusMirror
             foreach (var s in Screen.AllScreens)
             {
                 string text = "";
-                if (tscboFrom.SelectedItem != null) text = s.DeviceName + (tscboOutput.SelectedItem.ToString().EndsWith(s.DeviceName) ? "[源屏]" : "");
+                if (tscboFrom.SelectedItem != null) text = $"{s.DeviceName}{(tscboOutput.SelectedItem.ToString().EndsWith(RemoveUnneededChars(s.DeviceName)) ? ":[源屏]" : "")}";
                 if (tscboTo.SelectedItem != null)
                 {
-                    var text2 = s.DeviceName + (tscboTo.SelectedItem.ToString().EndsWith(s.DeviceName) ? "[离焦屏]" : "");
-                    if (string.IsNullOrEmpty(text)) text = text2;
-                    else if (text != text2) text += "\r" + text2;
+                    if (tscboTo.SelectedItem.ToString().EndsWith(RemoveUnneededChars(s.DeviceName)))
+                    {
+                        var text2 = $"{s.DeviceName}{":[离焦屏]"}";
+                        if (text.Contains(":[")) text += $"\r{text2}";
+                        else text = text2;
+                    }
                 }
                 else text = s.DeviceName;
-                text = text.Replace(".", "").Replace("\\", "");
+                text = RemoveUnneededChars(text);
 
                 var location = Centerize(new Rectangle(SystemInformation.VirtualScreen.X / 10, SystemInformation.VirtualScreen.Y / 10, SystemInformation.VirtualScreen.Width / 10, SystemInformation.VirtualScreen.Height / 10), pnlGraph.Size);
                 location.Offset(s.Bounds.X / 10, s.Bounds.Y / 10);
@@ -163,18 +174,19 @@ namespace DefocusMirror
 
                 display.Click += (sender, e) =>
                 {
-
-                    var arrow = new frmSticker() { LabelText = display.Text, Location = new Point(0, 0), StartPosition = FormStartPosition.Manual };
-                    var location = Centerize(arrow.Bounds, s.Bounds.Size);
+                    var sticker = new frmSticker() { LabelText = display.Text, Location = new Point(0, 0), StartPosition = FormStartPosition.Manual, Opacity = 0.8f };
+                    var location = Centerize(sticker.Bounds, s.Bounds.Size);
                     location.Offset(s.Bounds.X, s.Bounds.Y);
-                    arrow.Location = location;
-                    arrow.Show();
-                    Task.Delay(1000).ContinueWith(i => Invoke(() => arrow.Close()));
+                    sticker.Location = location;
+                    sticker.TopMost = true;
+                    sticker.Show();
+                    Task.Delay(1000).ContinueWith(i => Invoke(() => sticker.Close()));
                 };
 
                 pnlGraph.Controls.Add(display);
             }
         }
+
         private void trbScaleB_Scroll(object sender, EventArgs e)
         {
             numScaleB.Value = trbScaleB.Value / 10.0m;
@@ -209,7 +221,7 @@ namespace DefocusMirror
         {
             var dxgiFactory = new Factory1();
             var adapter = dxgiFactory.Adapters[tscboFrom.SelectedIndex];
-            string[] outputs = [.. adapter.Outputs.Select((i, n) => $"{n} - {i.Description.DeviceName}")];
+            string[] outputs = [.. adapter.Outputs.Select((i, n) => $"{n} - {RemoveUnneededChars(i.Description.DeviceName)}")];
             if (outputs.Length > 0)
             {
                 tscboOutput.Items.Clear();
@@ -236,7 +248,7 @@ namespace DefocusMirror
 
         private void tsmiExit_Click(object sender, EventArgs e)
         {
-            Close();
+            Environment.Exit(0);
         }
 
         private void tsmiShowControlBox_Click(object sender, EventArgs e)
@@ -244,20 +256,21 @@ namespace DefocusMirror
             notifyIcon1_MouseDoubleClick(sender, null);
         }
 
-        private void tsbFullScreen_Click(object sender, EventArgs e)
-        {
-
-        }
-
         private void tsbFullScreen_CheckedChanged(object sender, EventArgs e)
         {
-            if (tsbFullScreen.Checked) tsbFullScreen.Text = "全屏模式";
-            else tsbFullScreen.Text = "窗口模式";
+            tscboSize.Visible = !tsbFullScreen.Checked;
+            if (tsbFullScreen.Checked)
+            {
+                tsbFullScreen.Text = "全屏模式";
+            }
+            else
+            {
+                tsbFullScreen.Text = "窗口模式";
+            }
         }
 
         private void ControlBox_Activated(object sender, EventArgs e)
         {
-
         }
 
         private void ControlBox_FormClosing(object sender, FormClosingEventArgs e)

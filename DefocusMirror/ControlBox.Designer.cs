@@ -73,6 +73,7 @@
             tscboTo = new ToolStripComboBox();
             toolStripLabel3 = new ToolStripLabel();
             tscboFrameRate = new ToolStripComboBox();
+            tscboSize = new ToolStripComboBox();
             tsbFullScreen = new ToolStripButton();
             toolStripSeparator1 = new ToolStripSeparator();
             notifyIcon1 = new NotifyIcon(components);
@@ -81,6 +82,7 @@
             tsmiShowControlBox = new ToolStripMenuItem();
             toolStripMenuItem1 = new ToolStripSeparator();
             tsmiExit = new ToolStripMenuItem();
+            toolTip1 = new ToolTip(components);
             tabControl1.SuspendLayout();
             tabPage1.SuspendLayout();
             groupBox1.SuspendLayout();
@@ -229,7 +231,8 @@
             btnClose0.Name = "btnClose0";
             btnClose0.Size = new Size(234, 50);
             btnClose0.TabIndex = 0;
-            btnClose0.Text = "关";
+            btnClose0.Text = "关闭离焦屏";
+            toolTip1.SetToolTip(btnClose0, "关闭离焦屏输出，鼠标双击离焦屏或在离焦屏上按下CTL+ALT+Q亦可达到相同效果。注意：如果要退出程序，请点右下角托盘图标，鼠标右键菜单中选择“退出”。");
             btnClose0.UseVisualStyleBackColor = true;
             btnClose0.Click += btnClose_Click;
             // 
@@ -241,6 +244,7 @@
             btnBlue.Size = new Size(234, 50);
             btnBlue.TabIndex = 0;
             btnBlue.Text = "远视离焦/(R15:G3:B1px)";
+            toolTip1.SetToolTip(btnBlue, "启动后离焦屏上将显示一个带m字符的镜像鼠标用于模拟操作离焦屏，请注意与真鼠标指针的差别，不要搞混了。");
             btnBlue.UseVisualStyleBackColor = true;
             btnBlue.Click += btnBlue_Click;
             // 
@@ -252,6 +256,7 @@
             btnRed.Size = new Size(234, 50);
             btnRed.TabIndex = 0;
             btnRed.Text = "近视离焦/(R1:G3:B15px)";
+            toolTip1.SetToolTip(btnRed, "启动后离焦屏上将显示一个带m字符的镜像鼠标用于模拟操作离焦屏，请注意与真鼠标指针的差别，不要搞混了。");
             btnRed.UseVisualStyleBackColor = true;
             btnRed.Click += btnRed_Click;
             // 
@@ -281,7 +286,7 @@
             tabPage2.Location = new Point(4, 26);
             tabPage2.Name = "tabPage2";
             tabPage2.Padding = new Padding(3);
-            tabPage2.Size = new Size(815, 395);
+            tabPage2.Size = new Size(968, 395);
             tabPage2.TabIndex = 1;
             tabPage2.Text = "高级设置";
             // 
@@ -289,7 +294,7 @@
             // 
             label6.AutoSize = true;
             label6.Font = new Font("Microsoft YaHei UI", 12F, FontStyle.Regular, GraphicsUnit.Point, 134);
-            label6.Location = new Point(421, 259);
+            label6.Location = new Point(520, 259);
             label6.Name = "label6";
             label6.Size = new Size(68, 21);
             label6.TabIndex = 2;
@@ -309,7 +314,7 @@
             // 
             label5.AutoSize = true;
             label5.Font = new Font("Microsoft YaHei UI", 12F, FontStyle.Regular, GraphicsUnit.Point, 134);
-            label5.Location = new Point(421, 161);
+            label5.Location = new Point(520, 161);
             label5.Name = "label5";
             label5.Size = new Size(70, 21);
             label5.TabIndex = 2;
@@ -329,7 +334,7 @@
             // 
             label4.AutoSize = true;
             label4.Font = new Font("Microsoft YaHei UI", 12F, FontStyle.Regular, GraphicsUnit.Point, 134);
-            label4.Location = new Point(421, 63);
+            label4.Location = new Point(520, 63);
             label4.Name = "label4";
             label4.Size = new Size(68, 21);
             label4.TabIndex = 2;
@@ -340,7 +345,7 @@
             numSigmaB.DecimalPlaces = 2;
             numSigmaB.Font = new Font("Microsoft YaHei UI", 14.25F, FontStyle.Regular, GraphicsUnit.Point, 134);
             numSigmaB.Increment = new decimal(new int[] { 1, 0, 0, 131072 });
-            numSigmaB.Location = new Point(495, 254);
+            numSigmaB.Location = new Point(594, 254);
             numSigmaB.Maximum = new decimal(new int[] { 2, 0, 0, 0 });
             numSigmaB.Minimum = new decimal(new int[] { 1, 0, 0, 131072 });
             numSigmaB.Name = "numSigmaB";
@@ -364,7 +369,7 @@
             numSigmaG.DecimalPlaces = 2;
             numSigmaG.Font = new Font("Microsoft YaHei UI", 14.25F, FontStyle.Regular, GraphicsUnit.Point, 134);
             numSigmaG.Increment = new decimal(new int[] { 1, 0, 0, 131072 });
-            numSigmaG.Location = new Point(495, 156);
+            numSigmaG.Location = new Point(594, 156);
             numSigmaG.Maximum = new decimal(new int[] { 2, 0, 0, 0 });
             numSigmaG.Minimum = new decimal(new int[] { 1, 0, 0, 131072 });
             numSigmaG.Name = "numSigmaG";
@@ -392,7 +397,7 @@
             numSigmaR.DecimalPlaces = 2;
             numSigmaR.Font = new Font("Microsoft YaHei UI", 14.25F, FontStyle.Regular, GraphicsUnit.Point, 134);
             numSigmaR.Increment = new decimal(new int[] { 1, 0, 0, 131072 });
-            numSigmaR.Location = new Point(495, 58);
+            numSigmaR.Location = new Point(594, 58);
             numSigmaR.Maximum = new decimal(new int[] { 2, 0, 0, 0 });
             numSigmaR.Minimum = new decimal(new int[] { 1, 0, 0, 131072 });
             numSigmaR.Name = "numSigmaR";
@@ -417,11 +422,11 @@
             // 
             // trbSigmaB
             // 
-            trbSigmaB.Location = new Point(569, 254);
+            trbSigmaB.Location = new Point(668, 254);
             trbSigmaB.Maximum = 20;
             trbSigmaB.Minimum = 1;
             trbSigmaB.Name = "trbSigmaB";
-            trbSigmaB.Size = new Size(195, 45);
+            trbSigmaB.Size = new Size(277, 45);
             trbSigmaB.TabIndex = 0;
             trbSigmaB.Value = 10;
             trbSigmaB.Scroll += trbSigmaB_Scroll;
@@ -441,11 +446,11 @@
             // 
             // trbSigmaG
             // 
-            trbSigmaG.Location = new Point(569, 156);
+            trbSigmaG.Location = new Point(668, 156);
             trbSigmaG.Maximum = 20;
             trbSigmaG.Minimum = 1;
             trbSigmaG.Name = "trbSigmaG";
-            trbSigmaG.Size = new Size(195, 45);
+            trbSigmaG.Size = new Size(277, 45);
             trbSigmaG.TabIndex = 0;
             trbSigmaG.Value = 10;
             trbSigmaG.Scroll += trbSigmaG_Scroll;
@@ -455,18 +460,18 @@
             trbScaleB.Location = new Point(180, 254);
             trbScaleB.Maximum = 30;
             trbScaleB.Name = "trbScaleB";
-            trbScaleB.Size = new Size(195, 45);
+            trbScaleB.Size = new Size(285, 45);
             trbScaleB.TabIndex = 0;
             trbScaleB.Value = 30;
             trbScaleB.Scroll += trbScaleB_Scroll;
             // 
             // trbSigmaR
             // 
-            trbSigmaR.Location = new Point(569, 58);
+            trbSigmaR.Location = new Point(668, 58);
             trbSigmaR.Maximum = 20;
             trbSigmaR.Minimum = 1;
             trbSigmaR.Name = "trbSigmaR";
-            trbSigmaR.Size = new Size(195, 45);
+            trbSigmaR.Size = new Size(277, 45);
             trbSigmaR.TabIndex = 0;
             trbSigmaR.Value = 10;
             trbSigmaR.Scroll += trbSigmaR_Scroll;
@@ -476,7 +481,7 @@
             trbScaleG.Location = new Point(180, 156);
             trbScaleG.Maximum = 30;
             trbScaleG.Name = "trbScaleG";
-            trbScaleG.Size = new Size(195, 45);
+            trbScaleG.Size = new Size(285, 45);
             trbScaleG.TabIndex = 0;
             trbScaleG.Value = 10;
             trbScaleG.Scroll += trbScaleG_Scroll;
@@ -486,13 +491,13 @@
             trbScaleR.Location = new Point(180, 58);
             trbScaleR.Maximum = 30;
             trbScaleR.Name = "trbScaleR";
-            trbScaleR.Size = new Size(195, 45);
+            trbScaleR.Size = new Size(285, 45);
             trbScaleR.TabIndex = 0;
             trbScaleR.Scroll += trbScaleR_Scroll;
             // 
             // btnClose
             // 
-            btnClose.Location = new Point(377, 329);
+            btnClose.Location = new Point(558, 328);
             btnClose.Name = "btnClose";
             btnClose.Size = new Size(184, 42);
             btnClose.TabIndex = 0;
@@ -502,7 +507,7 @@
             // 
             // btnCustom
             // 
-            btnCustom.Location = new Point(580, 329);
+            btnCustom.Location = new Point(761, 328);
             btnCustom.Name = "btnCustom";
             btnCustom.Size = new Size(184, 42);
             btnCustom.TabIndex = 0;
@@ -512,7 +517,7 @@
             // 
             // toolStrip1
             // 
-            toolStrip1.Items.AddRange(new ToolStripItem[] { toolStripLabel1, tscboFrom, tscboOutput, toolStripLabel2, tscboTo, toolStripLabel3, tscboFrameRate, tsbFullScreen, toolStripSeparator1 });
+            toolStrip1.Items.AddRange(new ToolStripItem[] { toolStripLabel1, tscboFrom, tscboOutput, toolStripLabel2, tscboTo, toolStripLabel3, tscboFrameRate, tscboSize, tsbFullScreen, toolStripSeparator1 });
             toolStrip1.Location = new Point(0, 0);
             toolStrip1.Name = "toolStrip1";
             toolStrip1.Size = new Size(976, 25);
@@ -524,18 +529,21 @@
             toolStripLabel1.Name = "toolStripLabel1";
             toolStripLabel1.Size = new Size(56, 22);
             toolStripLabel1.Text = "捕捉自：";
+            toolStripLabel1.ToolTipText = "选择需要捕捉画面的适配器和屏幕输出";
             // 
             // tscboFrom
             // 
             tscboFrom.DropDownWidth = 200;
             tscboFrom.Name = "tscboFrom";
             tscboFrom.Size = new Size(120, 25);
+            tscboFrom.ToolTipText = "需要捕捉画面的适配器";
             tscboFrom.SelectedIndexChanged += tscboFrom_SelectedIndexChanged;
             // 
             // tscboOutput
             // 
             tscboOutput.Name = "tscboOutput";
             tscboOutput.Size = new Size(121, 25);
+            tscboOutput.ToolTipText = "需要捕捉画面的适配器上可选的屏幕";
             tscboOutput.SelectedIndexChanged += tscboOutput_SelectedIndexChanged;
             // 
             // toolStripLabel2
@@ -543,12 +551,14 @@
             toolStripLabel2.Name = "toolStripLabel2";
             toolStripLabel2.Size = new Size(56, 22);
             toolStripLabel2.Text = "输出到：";
+            toolStripLabel2.ToolTipText = "选择需要输出离焦画面的屏幕";
             // 
             // tscboTo
             // 
             tscboTo.DropDownWidth = 200;
             tscboTo.Name = "tscboTo";
             tscboTo.Size = new Size(120, 25);
+            tscboTo.ToolTipText = "用于显示离焦屏画面的屏幕。如果强制选择跟源屏幕相同，那么不会有输出。";
             tscboTo.SelectedIndexChanged += tscboTo_SelectedIndexChanged;
             // 
             // toolStripLabel3
@@ -556,6 +566,7 @@
             toolStripLabel3.Name = "toolStripLabel3";
             toolStripLabel3.Size = new Size(44, 22);
             toolStripLabel3.Text = "帧率：";
+            toolStripLabel3.ToolTipText = "离焦屏画面输出的帧率 - 如果显卡性能不佳可以设低一点，但一般30帧就好了，看视频或游戏可以设高点。";
             // 
             // tscboFrameRate
             // 
@@ -563,6 +574,17 @@
             tscboFrameRate.Name = "tscboFrameRate";
             tscboFrameRate.Size = new Size(75, 25);
             tscboFrameRate.Text = "30";
+            tscboFrameRate.ToolTipText = "离焦屏画面输出的帧率 - 如果显卡性能不佳可以设低一点，但一般30帧就好了，看视频或游戏可以设高点。";
+            // 
+            // tscboSize
+            // 
+            tscboSize.Alignment = ToolStripItemAlignment.Right;
+            tscboSize.DropDownWidth = 100;
+            tscboSize.Items.AddRange(new object[] { "1920x1080", "1680x1050", "1440x900", "1280x1024", "1280x960", "1280x720", "1024x768", "800x600" });
+            tscboSize.Name = "tscboSize";
+            tscboSize.Size = new Size(80, 25);
+            tscboSize.ToolTipText = "窗口模式下离焦屏的初始尺寸。用户后续可以自由调整窗口尺寸。";
+            tscboSize.Visible = false;
             // 
             // tsbFullScreen
             // 
@@ -576,8 +598,8 @@
             tsbFullScreen.Name = "tsbFullScreen";
             tsbFullScreen.Size = new Size(60, 22);
             tsbFullScreen.Text = "全屏模式";
+            tsbFullScreen.ToolTipText = "全屏/窗体模式，适用于两个屏幕解析度不一样但又想保持输出画面纵横比的情况，或者用户想自己控制离焦屏尺寸或比例。";
             tsbFullScreen.CheckedChanged += tsbFullScreen_CheckedChanged;
-            tsbFullScreen.Click += tsbFullScreen_Click;
             // 
             // toolStripSeparator1
             // 
@@ -720,5 +742,7 @@
         private ToolStripButton tsbFullScreen;
         private ToolStripSeparator toolStripSeparator1;
         private Panel pnlGraph;
+        private ToolStripComboBox tscboSize;
+        private ToolTip toolTip1;
     }
 }

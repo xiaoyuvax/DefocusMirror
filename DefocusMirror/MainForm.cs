@@ -1,12 +1,13 @@
-﻿using System.Diagnostics;
+﻿using SharpDX.DXGI;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
-using SharpDX.DXGI;
 using Timer = System.Windows.Forms.Timer;
 
 namespace DefocusMirror;
 
 public partial class MainForm : Form
 {
+    public frmArrow Arrow = new();
     private const int GWL_EXSTYLE = -20;
     private const int HOTKEY_ID = 1;
     private const int HWND_TOPMOST = -1;
@@ -47,41 +48,44 @@ public partial class MainForm : Form
     private const int WS_EX_NOACTIVATE = 0x8000000;
     private const int WS_EX_TOPMOST = 0x8;
     private const int WS_EX_TRANSPARENT = 0x20;
-    private Timer _captureTimer;
-    private int _dstScreenIndex;
+
+    //本地变量
+    private readonly float _blurScaleB;
+
+    private readonly float _blurScaleG;
+    private readonly float _blurScaleR;
+    private readonly float _blurSigmaB;
+    private readonly float _blurSigmaG;
+    private readonly float _blurSigmaR;
     private readonly int _frameRate;
     private readonly bool _fullScreenMode;
+    //鼠标绘制
+    private readonly SolidBrush defaultBrush = new(Color.WhiteSmoke);
+
+    private readonly Font defaultFont = new("Tahoma", 8, FontStyle.Regular);
+    private Timer _captureTimer;
     private Rectangle _fullScreenBounds;
-    private int _outputSrcIndex = 0;
-    private ScreenCapture _screenCapture;
-    private readonly float _blurScaleR;
-    private readonly float _blurScaleG;
-    private readonly float _blurScaleB;
-    private readonly float _blurSigmaR;
-    private readonly float _blurSigmaG;
-    private readonly float _blurSigmaB;
-    private int _srcAdapterIndex;
-
-
-    public frmArrow Arrow = new();
-
-    // 原始输入处理
-    private IntPtr hDeviceNotify = IntPtr.Zero;
-
-    private IntPtr hwnd = IntPtr.Zero;
-
-    // 屏幕映射
-    private Rectangle inputDefocusedScreenBounds;
-
-    private Rectangle inputCapturedScreenBounds;
-    private float scaleX = 1.0f;
-    private float scaleY = 1.0f;
-
-    private bool FormLoaded = false;
-    private bool ArrowVisible = false;
+    private Size _initialSize;
     private ControlBox _refControlBox;
+    private ScreenCapture _screenCapture;
+    private int _srcAdapterIndex;
+    private int _srcOutputIndex = 0;
+    private int _tgtScreenIndex;
+    private bool FormActivated = false;
+    private bool FormLoaded = false;
+    // 原始输入处理
+    private float scaleX = 1.0f;
 
-    public MainForm(ControlBox controlBox, float blurScaleR = 0, float blurScaleG = 0, float blurScaleB = 0, float blurSigmaR = 1, float blurSigmaG = 1, float blurSigmaB = 1, int? adapterSrcIndex = null, int? outputSrcIndex = null, int? adapterDstIndex = null, int frameRate = 30, bool fullScreenMode = true)
+    private float scaleY = 1.0f;
+    private Rectangle srcScreenBounds;
+    private Rectangle tgtScreenBounds;
+
+    public MainForm(
+        ControlBox controlBox, float blurScaleR = 0, float blurScaleG = 0, float blurScaleB = 0, float blurSigmaR = 1,
+        float blurSigmaG = 1, float blurSigmaB = 1, int? adapterSrcIndex = null, int? outputSrcIndex = null,
+        int? adapterDstIndex = null, int frameRate = 30, bool fullScreenMode = true,
+        Size initialiSize = default
+                   )
     {
         InitializeComponent();
         _refControlBox = controlBox;
@@ -92,62 +96,14 @@ public partial class MainForm : Form
         _blurSigmaG = blurSigmaG;
         _blurSigmaB = blurSigmaB;
         _srcAdapterIndex = adapterSrcIndex ?? 0;
-        _dstScreenIndex = adapterDstIndex ?? 0;
+        _tgtScreenIndex = adapterDstIndex ?? 0;
         _frameRate = frameRate;
         _fullScreenMode = fullScreenMode;
-        _outputSrcIndex = outputSrcIndex ?? 0;
+        _srcOutputIndex = outputSrcIndex ?? 0;
+        Size = _initialSize = initialiSize;
 
         InitializeMirror();
     }
-
-    private void InitializeMirror()
-    {
-        _captureTimer?.Stop();
-        _screenCapture?.Dispose();
-        StartPosition = FormStartPosition.Manual;
-        if (_fullScreenMode)
-        {
-            if (Screen.AllScreens.Length > 1) Bounds = _fullScreenBounds = Screen.AllScreens[_dstScreenIndex].Bounds;
-            // 设置全屏，TopMost，输入穿透
-            FormBorderStyle = FormBorderStyle.None;
-            WindowState = FormWindowState.Maximized;
-        }
-        TopMost = true;
-
-        //int extendedStyle = GetWindowLong(Handle, GWL_EXSTYLE);
-        //SetWindowLong(Handle, GWL_EXSTYLE, extendedStyle | WS_EX_LAYERED | WS_EX_TRANSPARENT);
-
-        //// 设置不透明度为255（完全不透明），实现鼠标穿透
-        //SetLayeredWindowAttributes(Handle, 0, 255, LWA_ALPHA);
-
-        // 初始化屏幕捕获
-        _screenCapture = new ScreenCapture(_blurScaleR, _blurScaleG, _blurScaleB, _blurSigmaR, _blurSigmaG, _blurSigmaB, Handle, _srcAdapterIndex, _outputSrcIndex, _frameRate, _fullScreenMode ? _fullScreenBounds.Width : Bounds.Width, _fullScreenMode ? _fullScreenBounds.Height : Bounds.Height);
-
-        // 创建并启动捕获定时器
-        _captureTimer = new Timer
-        {
-            Interval = 1000 / _frameRate // 大约30 FPS
-        };
-        _captureTimer.Tick += (s, e) => CaptureAndRender();
-        _captureTimer.Start();
-
-        inputDefocusedScreenBounds = Screen.AllScreens[_dstScreenIndex].Bounds;
-        inputCapturedScreenBounds = GetSourceScreenBounds();
-
-        Arrow.StartPosition = FormStartPosition.Manual;
-        Arrow.Bounds = new Rectangle(inputCapturedScreenBounds.X, inputCapturedScreenBounds.Y, 64, 64);
-        // 注册RawInput设备
-        RegisterRawInput();
-    }
-
-    [Flags]
-    public enum MouseEventFlags
-    {
-        LEFTDOWN = 0x0002,
-        LEFTUP = 0x0004,
-        ABSOLUTE = 0x8000
-    }
-
 
     protected override void WndProc(ref Message m)
     {
@@ -163,24 +119,6 @@ public partial class MainForm : Form
         base.WndProc(ref m);
     }
 
-    [LibraryImport("user32.dll")]
-    private static partial int GetWindowLong(IntPtr hWnd, int nIndex);
-
-    [DllImport("user32.dll")]
-    private static extern void mouse_event(uint dwFlags, uint dx, uint dy, uint dwData, int dwExtraInfo);
-
-    [LibraryImport("user32.dll", EntryPoint = "SetLayeredWindowAttributes")]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    private static partial bool SetLayeredWindowAttributes(IntPtr hwnd, int crKey, byte bAlpha, int dwFlags);
-
-    // API声明
-    [LibraryImport("user32.dll", SetLastError = true)]
-    private static partial int SetWindowLong(IntPtr hWnd, int nIndex, int dwNewLong);
-
-    [LibraryImport("user32.dll", SetLastError = true)]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    private static partial bool SetWindowPos(IntPtr hWnd, int hWndInsertAfter, int x, int y, int cx, int cy, int uFlags);
-
     private void CaptureAndRender()
     {
         _screenCapture.CaptureScreen();
@@ -191,9 +129,48 @@ public partial class MainForm : Form
     {
         using var dxgiFactory = new Factory1();
         using var adapter = dxgiFactory.Adapters[_srcAdapterIndex];
-        using var output = adapter.Outputs[_outputSrcIndex];
+        using var output = adapter.Outputs[_srcOutputIndex];
         var bounds = output.Description.DesktopBounds;
         return new Rectangle(bounds.Left, bounds.Top, bounds.Right - bounds.Left, bounds.Bottom - bounds.Top);
+    }
+
+    private void InitializeMirror()
+    {
+        _captureTimer?.Stop();
+        _screenCapture?.Dispose();
+        TopMost = true;
+        StartPosition = FormStartPosition.Manual;
+        tgtScreenBounds = Screen.AllScreens[_tgtScreenIndex].Bounds;
+        srcScreenBounds = GetSourceScreenBounds();
+        Arrow.Bounds = new Rectangle(srcScreenBounds.X, srcScreenBounds.Y, 64, 64);
+
+        if (_fullScreenMode)
+        {
+            if (Screen.AllScreens.Length > 1) Bounds = _fullScreenBounds = Screen.AllScreens[_tgtScreenIndex].Bounds;
+            // 设置全屏，TopMost，输入穿透
+            FormBorderStyle = FormBorderStyle.None;
+            WindowState = FormWindowState.Maximized;
+        }
+        else
+        {
+            scaleX = (float)ClientSize.Width / srcScreenBounds.Width;
+            scaleY = (float)ClientSize.Height / srcScreenBounds.Height;
+            _titleBarHeight = Height - ClientSize.Height;
+        }
+
+        // 初始化屏幕捕获
+        _screenCapture = new ScreenCapture(_blurScaleR, _blurScaleG, _blurScaleB, _blurSigmaR, _blurSigmaG, _blurSigmaB, Handle, _srcAdapterIndex, _srcOutputIndex, _frameRate, _fullScreenMode ? _fullScreenBounds.Width : Bounds.Width, _fullScreenMode ? _fullScreenBounds.Height : Bounds.Height);
+
+        // 创建并启动捕获定时器
+        _captureTimer = new Timer
+        {
+            Interval = 1000 / _frameRate
+        };
+        _captureTimer.Tick += (s, e) => CaptureAndRender();
+        _captureTimer.Start();
+
+        // 注册RawInput设备
+        RegisterRawInput();
     }
 
     private void MainForm_FormClosed(object sender, FormClosedEventArgs e)
@@ -211,47 +188,6 @@ public partial class MainForm : Form
     private void MainForm_Load(object sender, EventArgs e)
     {
         FormLoaded = true;
-        Arrow.Show();
-        Arrow.TopMost = true;
-
-    }
-
-    private void ProcessKeyboardInput(RAWINPUT raw)
-    {
-        RAWINPUTKEYBOARD keyboard = raw.keyboard;
-
-        // 获取当前鼠标位置
-        Point cursorPos = Cursor.Position;
-
-        // 只在鼠标位于源屏幕内时才重定向键盘输入
-        if (!inputDefocusedScreenBounds.Contains(cursorPos))
-        {
-            return;
-        }
-
-        ushort vKey = keyboard.VKey;
-        ushort makeCode = keyboard.MakeCode;
-        ushort flags = keyboard.Flags;
-
-        // 处理键盘事件
-        bool isKeyDown = (flags & 0x01) == 0; // RI_KEY_MAKE
-        bool isKeyUp = (flags & 0x01) == 1;   // RI_KEY_BREAK
-        bool isE0 = (flags & 0x02) != 0;      // RI_KEY_E0
-        bool isE1 = (flags & 0x04) != 0;      // RI_KEY_E1
-
-        if (vKey == 0xFF) // 过载码
-        {
-            return;
-        }
-
-        if (isKeyDown)
-        {
-            SimulateKeyDown(vKey, isE0);
-        }
-        else if (isKeyUp)
-        {
-            SimulateKeyUp(vKey, isE0);
-        }
     }
 
     private void ProcessMouseInput(RAWINPUT raw)
@@ -259,25 +195,30 @@ public partial class MainForm : Form
         // 获取当前鼠标位置
         Point cursorPos = Cursor.Position;
 
-        // 检查鼠标是否在源屏幕内
-        if (!inputCapturedScreenBounds.Contains(cursorPos)) return;
-
+        // 检查真鼠标是否在源屏幕内
+        if (!srcScreenBounds.Contains(cursorPos)) return;
 
         // 将源屏幕坐标映射到离焦屏幕
-        Point targetPos = new(
-            (int)((cursorPos.X - inputCapturedScreenBounds.Left) * scaleX) + inputDefocusedScreenBounds.Left,
-            (int)((cursorPos.Y - inputCapturedScreenBounds.Top) * scaleY) + inputDefocusedScreenBounds.Top
-                             );
+        Point targetPos = _fullScreenMode ?
+            new(cursorPos.X - srcScreenBounds.Left + tgtScreenBounds.Left,
+            cursorPos.Y - srcScreenBounds.Top + tgtScreenBounds.Top)
+            :
+            new((int)((cursorPos.X - srcScreenBounds.Left) * scaleX) + Left + DefaultMargin.Size.Width,
+            (int)((cursorPos.Y - srcScreenBounds.Top) * scaleY) + Top + _titleBarHeight - DefaultMargin.Size.Height);
 
-        Arrow.Location = new Point(targetPos.X, targetPos.Y);
-        if (!_refControlBox.Visible) Arrow.TopMost = true;
-        if (ArrowVisible == false)
-        {
-            ArrowVisible = true;
-            Arrow.BringToFront();
-            Arrow.TopMost = true;
-            
-        }
+        var (CursorImage, Hotspot, Position) = GlobalCursorHelper.GetGlobalCursor();
+        Arrow.Size = Arrow.CursorImage.Size = CursorImage.Size;
+        Arrow.Location = new Point(targetPos.X - Hotspot.X, targetPos.Y - Hotspot.Y);
+        using var g = Graphics.FromImage(CursorImage);
+        g.DrawString("m", defaultFont, defaultBrush, new PointF(Arrow.Width / 2F + 4, Arrow.Height / 2F + 4));
+
+        Arrow.CursorImage.Image = CursorImage;
+        if (!_refControlBox.Visible)
+            if (Arrow.TopMost)
+            {
+                // Arrow.BringToFront();
+            }
+            else Arrow.TopMost = true; //注意：如果控制盒可见，则不置顶箭头窗口，否则会导致控制盒无法点击
 
         //RAWINPUTMOUSE mouse = raw.mouse;
         //// 处理鼠标移动
@@ -396,164 +337,9 @@ public partial class MainForm : Form
         }
     }
 
-    // 模拟键盘按下
-    private void SimulateKeyDown(ushort vKey, bool isExtended)
-    {
-        INPUT input = new()
-        {
-            type = 1, // INPUT_KEYBOARD
-            u = new INPUT_UNION
-            {
-                ki = new KEYBDINPUT
-                {
-                    wVk = vKey,
-                    wScan = 0,
-                    dwFlags = isExtended ? (uint)(KEYEVENTF.EXTENDEDKEY | KEYEVENTF.KEYDOWN) : (uint)KEYEVENTF.KEYDOWN,
-                    time = 0,
-                    dwExtraInfo = GetMessageExtraInfo()
-                }
-            }
-        };
-
-        INPUT[] inputs = { input };
-        SendInput(1, inputs, Marshal.SizeOf<INPUT>());
-    }
-
-    // 模拟键盘释放
-    private void SimulateKeyUp(ushort vKey, bool isExtended)
-    {
-        INPUT input = new()
-        {
-            type = 1, // INPUT_KEYBOARD
-            u = new INPUT_UNION
-            {
-                ki = new KEYBDINPUT
-                {
-                    wVk = vKey,
-                    wScan = 0,
-                    dwFlags = isExtended ? (uint)(KEYEVENTF.EXTENDEDKEY | KEYEVENTF.KEYUP) : (uint)KEYEVENTF.KEYUP,
-                    time = 0,
-                    dwExtraInfo = GetMessageExtraInfo()
-                }
-            }
-        };
-
-        INPUT[] inputs = { input };
-        SendInput(1, inputs, Marshal.SizeOf<INPUT>());
-    }
-
-    // 模拟鼠标事件
-    private void SimulateMouseEvent(MOUSEEVENTF dwFlags, Point position)
-    {
-        // 计算绝对坐标
-        int absoluteX = (int)(position.X * 65536.0 / SystemInformation.VirtualScreen.Width);
-        int absoluteY = (int)(position.Y * 65536.0 / SystemInformation.VirtualScreen.Height);
-
-        INPUT input = new()
-        {
-            type = 0, // INPUT_MOUSE
-            u = new INPUT_UNION
-            {
-                mi = new MOUSEINPUT
-                {
-                    dx = absoluteX,
-                    dy = absoluteY,
-                    mouseData = 0,
-                    dwFlags = (uint)(dwFlags | MOUSEEVENTF.ABSOLUTE | MOUSEEVENTF.VIRTUALDESK),
-                    time = 0,
-                    dwExtraInfo = GetMessageExtraInfo()
-                }
-            }
-        };
-
-        INPUT[] inputs = [input];
-
-        ////MouseClick配对处理
-
-        var posTemp = Cursor.Position;
-        Cursor.Position = position;
-
-        Thread.Sleep(120);
-
-        var r = SendInput((uint)inputs.Length, inputs, Marshal.SizeOf<INPUT>());
-        if (r == inputs.Length) Task.Delay(10).ContinueWith(i => Cursor.Position = posTemp);
-
-        //Debug.WriteLine($"{DateTime.Now:HHmmss.fff}INPUT SENT:" + dwFlags);
-    }
-
-    // 模拟水平滚轮
-    private void SimulateMouseHWheel(short wheelDelta)
-    {
-        INPUT input = new()
-        {
-            type = 0, // INPUT_MOUSE
-            u = new INPUT_UNION
-            {
-                mi = new MOUSEINPUT
-                {
-                    dx = 0,
-                    dy = 0,
-                    mouseData = (uint)wheelDelta,
-                    dwFlags = (uint)MOUSEEVENTF.HWHEEL,
-                    time = 0,
-                    dwExtraInfo = GetMessageExtraInfo()
-                }
-            }
-        };
-
-        INPUT[] inputs = { input };
-        SendInput(1, inputs, Marshal.SizeOf<INPUT>());
-    }
-
-    // 模拟鼠标相对移动
-    private void SimulateMouseMoveRelative(int dx, int dy)
-    {
-        INPUT input = new()
-        {
-            type = 0, // INPUT_MOUSE
-            u = new INPUT_UNION
-            {
-                mi = new MOUSEINPUT
-                {
-                    dx = dx,
-                    dy = dy,
-                    mouseData = 0,
-                    dwFlags = (uint)MOUSEEVENTF.MOVE,
-                    time = 0,
-                    dwExtraInfo = GetMessageExtraInfo()
-                }
-            }
-        };
-
-        INPUT[] inputs = { input };
-        SendInput(1, inputs, Marshal.SizeOf<INPUT>());
-    }
-
-    // 模拟鼠标滚轮
-    private void SimulateMouseWheel(short wheelDelta)
-    {
-        INPUT input = new()
-        {
-            type = 0, // INPUT_MOUSE
-            u = new INPUT_UNION
-            {
-                mi = new MOUSEINPUT
-                {
-                    dx = 0,
-                    dy = 0,
-                    mouseData = (uint)wheelDelta,
-                    dwFlags = (uint)MOUSEEVENTF.WHEEL,
-                    time = 0,
-                    dwExtraInfo = GetMessageExtraInfo()
-                }
-            }
-        };
-
-        INPUT[] inputs = { input };
-        SendInput(1, inputs, Marshal.SizeOf<INPUT>());
-    }
-
     #region Win32 API Declarations
+
+    private int _titleBarHeight;
 
     private enum KEYEVENTF : uint
     {
@@ -583,28 +369,20 @@ public partial class MainForm : Form
         XUP = 0x0100
     }
 
-    [DllImport("user32.dll")]
-    private static extern short GetAsyncKeyState(int vKey);
-
-    [DllImport("user32.dll")]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    private static extern bool GetCursorPos(out Point lpPoint);
-
-    [DllImport("user32.dll")]
-    private static extern IntPtr GetMessageExtraInfo();
-
     [DllImport("user32.dll", SetLastError = true)]
     private static extern uint GetRawInputData(IntPtr hRawInput, uint uiCommand, IntPtr pData, ref uint pcbSize, uint cbSizeHeader);
 
     [DllImport("user32.dll", SetLastError = true)]
     private static extern bool RegisterRawInputDevices(RAWINPUTDEVICE[] pRawInputDevices, uint uiNumDevices, uint cbSize);
 
-    [DllImport("user32.dll", SetLastError = true)]
-    private static extern uint SendInput(uint nInputs, INPUT[] pInputs, int cbSize);
+    private void MainForm_MouseClick(object sender, MouseEventArgs e)
+    {
+        ShowArrow();
+    }
 
     private void MainForm_MouseDoubleClick(object sender, MouseEventArgs e)
     {
-        this.Close();
+        Close();
     }
 
     private void MainForm_Resize(object sender, EventArgs e)
@@ -612,6 +390,16 @@ public partial class MainForm : Form
         if (FormLoaded) InitializeMirror();
     }
 
+    private void MainForm_Shown(object sender, EventArgs e)
+    {
+        ShowArrow();
+    }
+
+    private void ShowArrow()
+    {
+        Arrow.Show();
+        Arrow.TopMost = true;
+    }
     [StructLayout(LayoutKind.Sequential)]
     private struct HARDWAREINPUT
     {

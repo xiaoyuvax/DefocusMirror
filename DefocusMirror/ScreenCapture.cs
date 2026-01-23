@@ -3,6 +3,7 @@ using SharpDX.D3DCompiler;
 using SharpDX.Direct3D;
 using SharpDX.Direct3D11;
 using SharpDX.DXGI;
+using System.Resources;
 using Buffer = SharpDX.Direct3D11.Buffer;
 using Device = SharpDX.Direct3D11.Device;
 
@@ -333,7 +334,8 @@ public partial class ScreenCapture : IDisposable
     private void CreatePixelShader()
     {
         // 创建像素着色器
-        var pixelShaderByteCode = ShaderBytecode.CompileFromFile("PixelShader.hlsl", "main", "ps_5_0");
+        var hlsl = ResourceHelper.GetBinRes("DefocusMirror.PixelShader.hlsl");
+        var pixelShaderByteCode = ShaderBytecode.Compile(hlsl, "main", "ps_5_0");
 
         _pixelShader = new PixelShader(_device, pixelShaderByteCode);
     }
