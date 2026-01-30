@@ -1,6 +1,6 @@
-﻿using SharpDX.DXGI;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Runtime.InteropServices;
+using SharpDX.DXGI;
 using Timer = System.Windows.Forms.Timer;
 
 namespace DefocusMirror;
@@ -59,6 +59,7 @@ public partial class MainForm : Form
     private readonly float _blurSigmaR;
     private readonly int _frameRate;
     private readonly bool _fullScreenMode;
+
     //鼠标绘制
     private readonly SolidBrush defaultBrush = new(Color.WhiteSmoke);
 
@@ -73,6 +74,7 @@ public partial class MainForm : Form
     private int _tgtScreenIndex;
     private bool FormActivated = false;
     private bool FormLoaded = false;
+
     // 原始输入处理
     private float scaleX = 1.0f;
 
@@ -121,8 +123,11 @@ public partial class MainForm : Form
 
     private void CaptureAndRender()
     {
-        _screenCapture.CaptureScreen();
-        _screenCapture.Render();
+        if (Visible)
+        {
+            _screenCapture.CaptureScreen();
+            _screenCapture.Render();
+        }
     }
 
     private Rectangle GetSourceScreenBounds()
@@ -146,13 +151,16 @@ public partial class MainForm : Form
 
         if (_fullScreenMode)
         {
-            if (Screen.AllScreens.Length > 1) Bounds = _fullScreenBounds = Screen.AllScreens[_tgtScreenIndex].Bounds;
+            if (Screen.AllScreens.Length == 1) _fullScreenBounds = srcScreenBounds;
+            else Bounds = _fullScreenBounds = tgtScreenBounds;
+
             // 设置全屏，TopMost，输入穿透
             FormBorderStyle = FormBorderStyle.None;
             WindowState = FormWindowState.Maximized;
         }
         else
         {
+            Location = tgtScreenBounds.Location;
             scaleX = (float)ClientSize.Width / srcScreenBounds.Width;
             scaleY = (float)ClientSize.Height / srcScreenBounds.Height;
             _titleBarHeight = Height - ClientSize.Height;
@@ -162,10 +170,7 @@ public partial class MainForm : Form
         _screenCapture = new ScreenCapture(_blurScaleR, _blurScaleG, _blurScaleB, _blurSigmaR, _blurSigmaG, _blurSigmaB, Handle, _srcAdapterIndex, _srcOutputIndex, _frameRate, _fullScreenMode ? _fullScreenBounds.Width : Bounds.Width, _fullScreenMode ? _fullScreenBounds.Height : Bounds.Height);
 
         // 创建并启动捕获定时器
-        _captureTimer = new Timer
-        {
-            Interval = 1000 / _frameRate
-        };
+        _captureTimer = new Timer { Interval = 1000 / _frameRate };
         _captureTimer.Tick += (s, e) => CaptureAndRender();
         _captureTimer.Start();
 
@@ -206,19 +211,26 @@ public partial class MainForm : Form
             new((int)((cursorPos.X - srcScreenBounds.Left) * scaleX) + Left + DefaultMargin.Size.Width,
             (int)((cursorPos.Y - srcScreenBounds.Top) * scaleY) + Top + _titleBarHeight - DefaultMargin.Size.Height);
 
-        var (CursorImage, Hotspot, Position) = GlobalCursorHelper.GetGlobalCursor();
-        Arrow.Size = Arrow.CursorImage.Size = CursorImage.Size;
-        Arrow.Location = new Point(targetPos.X - Hotspot.X, targetPos.Y - Hotspot.Y);
-        using var g = Graphics.FromImage(CursorImage);
-        g.DrawString("m", defaultFont, defaultBrush, new PointF(Arrow.Width / 2F + 4, Arrow.Height / 2F + 4));
+        try
+        {
+            var (CursorImage, Hotspot, Position) = GlobalCursorHelper.GetGlobalCursor();
 
-        Arrow.CursorImage.Image = CursorImage;
-        if (!_refControlBox.Visible)
-            if (Arrow.TopMost)
-            {
-                // Arrow.BringToFront();
-            }
-            else Arrow.TopMost = true; //注意：如果控制盒可见，则不置顶箭头窗口，否则会导致控制盒无法点击
+            Arrow.Size = Arrow.CursorImage.Size = CursorImage.Size;
+            Arrow.Location = new Point(targetPos.X - Hotspot.X, targetPos.Y - Hotspot.Y);
+            using var g = Graphics.FromImage(CursorImage);
+            g.DrawString("m", defaultFont, defaultBrush, new PointF(Arrow.Width / 2F + 4, Arrow.Height / 2F + 4));
+
+            Arrow.CursorImage.Image = CursorImage;
+            if (!_refControlBox.Visible)
+                if (Arrow.TopMost)
+                {
+                    // Arrow.BringToFront();
+                }
+                else Arrow.TopMost = true; //注意：如果控制盒可见，则不置顶箭头窗口，否则会导致控制盒无法点击
+        }
+        catch (Exception ex)
+        {
+        }
 
         //RAWINPUTMOUSE mouse = raw.mouse;
         //// 处理鼠标移动
@@ -377,6 +389,7 @@ public partial class MainForm : Form
 
     private void MainForm_MouseClick(object sender, MouseEventArgs e)
     {
+        InitializeMirror();
         ShowArrow();
     }
 
@@ -400,6 +413,7 @@ public partial class MainForm : Form
         Arrow.Show();
         Arrow.TopMost = true;
     }
+
     [StructLayout(LayoutKind.Sequential)]
     private struct HARDWAREINPUT
     {

@@ -6,8 +6,6 @@ namespace DefocusMirror
     {
         private MainForm _mainForm;
 
-        private static string RemoveUnneededChars(string s) => s.Replace(".", "").Replace("\\", "");
-
         public ControlBox()
         {
             InitializeComponent();
@@ -35,11 +33,10 @@ namespace DefocusMirror
             return new Point(xOffset, yOffset);
         }
 
+        private static string RemoveUnneededChars(string s) => s.Replace(".", "").Replace("\\", "");
         private void btnBlue_Click(object sender, EventArgs e)
         {
-            _mainForm?.Close();
-            _mainForm = CreateNewMainForm(3f, 1f, 0f, 1f, 1f, 1f);
-            _mainForm?.Show();
+            ShowNewMainForm(3f, 1f, 0f, 1f, 1f, 1f);
         }
 
         private void btnClose_Click(object sender, EventArgs e)
@@ -49,17 +46,12 @@ namespace DefocusMirror
 
         private void btnCustom_Click(object sender, EventArgs e)
         {
-            _mainForm?.Close();
-            _mainForm = CreateNewMainForm((float)numScaleR.Value, (float)numScaleG.Value, (float)numScaleB.Value, (float)numSigmaR.Value, (float)numSigmaG.Value, (float)numSigmaB.Value);
-            _mainForm?.Show();
+            ShowNewMainForm((float)numScaleR.Value, (float)numScaleG.Value, (float)numScaleB.Value, (float)numSigmaR.Value, (float)numSigmaG.Value, (float)numSigmaB.Value);
         }
 
         private void btnRed_Click(object sender, EventArgs e)
         {
-            _mainForm?.Close();
-            _mainForm?.Dispose();
-            _mainForm = CreateNewMainForm(0, 1f, 3f, 1f, 1f, 1f);
-            _mainForm?.Show();
+            ShowNewMainForm(0, 1f, 3f, 1f, 1f, 1f);
         }
 
         private void cmsNotify_DoubleClick(object sender, EventArgs e)
@@ -71,10 +63,25 @@ namespace DefocusMirror
             tsmiClose.Enabled = _mainForm != null && !_mainForm.IsDisposed;
         }
 
+        private void ControlBox_Activated(object sender, EventArgs e)
+        {
+        }
+
+        private void ControlBox_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            Hide();
+            e.Cancel = true;
+        }
+
+        private void ControlBox_SizeChanged(object sender, EventArgs e)
+        {
+            if (WindowState == FormWindowState.Minimized) this.Hide();
+        }
+
         private MainForm CreateNewMainForm(float blurScaleR = 0, float blurScaleG = 0, float blurScaleB = 0, float blurSigmaR = 1, float blurSigmaG = 1, float blurSigmaB = 1)
         {
-            var windowSize = tscboSize.Text.Split(['x', 'X', '*']).Select(i => int.TryParse(i, out int s) ? s : 0).ToArray();
-            if (windowSize.Length == 2 && windowSize.All(i => i > 0))
+            var windowSize = tscboSize.Text.Split(['x', 'X', '*', '×']).Select(i => int.TryParse(i, out int s) ? s : 0).ToArray();
+            if (!tsbFullScreen.Checked || windowSize.Length == 2 && windowSize.All(i => i > 0))
                 return new(this, blurScaleR, blurScaleG, blurScaleB, blurSigmaR, blurSigmaG, blurSigmaB, tscboFrom.SelectedIndex, tscboOutput.SelectedIndex, tscboTo.SelectedIndex, ParseFrameRate(), tsbFullScreen.Checked, new(windowSize[0], windowSize[1]));
             else MessageBox.Show("离焦屏尺寸错误！请确定数字与格式正确。格式:1920x1080", "初始尺寸", MessageBoxButtons.OK, MessageBoxIcon.Error);
             return null;
@@ -82,10 +89,9 @@ namespace DefocusMirror
 
         private void notifyIcon1_MouseDoubleClick(object sender, MouseEventArgs e)
         {
+            WindowState = FormWindowState.Normal;
             Show();
             TopMost = true;
-            BringToFront();
-            TopMost = false;
         }
 
         private void numScaleB_Click(object sender, EventArgs e)
@@ -187,6 +193,17 @@ namespace DefocusMirror
             }
         }
 
+        private void ShowNewMainForm(float blurScaleR = 0, float blurScaleG = 0, float blurScaleB = 0, float blurSigmaR = 1, float blurSigmaG = 1, float blurSigmaB = 1)
+        {
+            if (Screen.AllScreens.Length < 2)
+                if (MessageBox.Show("当前未检测第二个显示器或桌面未扩展到第二个显示器，无法正常启动离焦屏！\r请连接至少两个显示器并将桌面扩展（而不是复制）到第二个显示器后重试。如果选择“是”可以继续以窗体模式体验本应用。\r\r要继续吗？", "显示器数量不足", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2)
+                    == DialogResult.No) return;
+
+            _mainForm?.Close();
+            _mainForm?.Dispose();
+            _mainForm = CreateNewMainForm(blurScaleR, blurScaleG, blurScaleB, blurSigmaR, blurSigmaG, blurSigmaB);
+            _mainForm?.Show();
+        }
         private void trbScaleB_Scroll(object sender, EventArgs e)
         {
             numScaleB.Value = trbScaleB.Value / 10.0m;
@@ -215,6 +232,19 @@ namespace DefocusMirror
         private void trbSigmaR_Scroll(object sender, EventArgs e)
         {
             numSigmaR.Value = trbSigmaR.Value / 10.0m;
+        }
+
+        private void tsbFullScreen_CheckedChanged(object sender, EventArgs e)
+        {
+            tscboSize.Visible = !tsbFullScreen.Checked;
+            if (tsbFullScreen.Checked)
+            {
+                tsbFullScreen.Text = "全屏模式";
+            }
+            else
+            {
+                tsbFullScreen.Text = "窗口模式";
+            }
         }
 
         private void tscboFrom_SelectedIndexChanged(object sender, EventArgs e)
@@ -254,29 +284,6 @@ namespace DefocusMirror
         private void tsmiShowControlBox_Click(object sender, EventArgs e)
         {
             notifyIcon1_MouseDoubleClick(sender, null);
-        }
-
-        private void tsbFullScreen_CheckedChanged(object sender, EventArgs e)
-        {
-            tscboSize.Visible = !tsbFullScreen.Checked;
-            if (tsbFullScreen.Checked)
-            {
-                tsbFullScreen.Text = "全屏模式";
-            }
-            else
-            {
-                tsbFullScreen.Text = "窗口模式";
-            }
-        }
-
-        private void ControlBox_Activated(object sender, EventArgs e)
-        {
-        }
-
-        private void ControlBox_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            Hide();
-            e.Cancel = true;
         }
     }
 }

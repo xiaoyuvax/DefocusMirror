@@ -7,6 +7,10 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 		<LangVersion>13</LangVersion>
+		<ApplicationIcon>DefocusMirror.ico</ApplicationIcon>
+		<AssemblyVersion>1.0.0.1</AssemblyVersion>
+		<FileVersion>1.0.0.1</FileVersion>
+		<Version>1.0.0</Version>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -15,6 +19,10 @@
 
 	<ItemGroup>
 	  <None Remove="PixelShader.hlsl" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Content Include="DefocusMirror.ico" />
 	</ItemGroup>
 
 	<ItemGroup>

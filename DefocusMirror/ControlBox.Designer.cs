@@ -83,6 +83,7 @@
             toolStripMenuItem1 = new ToolStripSeparator();
             tsmiExit = new ToolStripMenuItem();
             toolTip1 = new ToolTip(components);
+            label13 = new Label();
             tabControl1.SuspendLayout();
             tabPage1.SuspendLayout();
             groupBox1.SuspendLayout();
@@ -118,6 +119,7 @@
             // tabPage1
             // 
             tabPage1.BackColor = SystemColors.Control;
+            tabPage1.Controls.Add(label13);
             tabPage1.Controls.Add(pnlGraph);
             tabPage1.Controls.Add(groupBox1);
             tabPage1.Controls.Add(btnClose0);
@@ -580,9 +582,9 @@
             // 
             tscboSize.Alignment = ToolStripItemAlignment.Right;
             tscboSize.DropDownWidth = 100;
-            tscboSize.Items.AddRange(new object[] { "1920x1080", "1680x1050", "1440x900", "1280x1024", "1280x960", "1280x720", "1024x768", "800x600" });
+            tscboSize.Items.AddRange(new object[] { "3840×2160", "3440×1440", "2560×1440", "1920×1200", "1920x1080", "1680x1050", "1440x900", "1280x1024", "1280x960", "1280x720", "1024x768", "800x600" });
             tscboSize.Name = "tscboSize";
-            tscboSize.Size = new Size(80, 25);
+            tscboSize.Size = new Size(100, 25);
             tscboSize.ToolTipText = "窗口模式下离焦屏的初始尺寸。用户后续可以自由调整窗口尺寸。";
             tscboSize.Visible = false;
             // 
@@ -650,6 +652,15 @@
             tsmiExit.Text = "退出(&X)";
             tsmiExit.Click += tsmiExit_Click;
             // 
+            // label13
+            // 
+            label13.ForeColor = Color.Crimson;
+            label13.Location = new Point(717, 147);
+            label13.Name = "label13";
+            label13.Size = new Size(231, 63);
+            label13.TabIndex = 4;
+            label13.Text = "免责声明：本软件仅供内部免费评测，作者对其使用后果不承担任何责任。";
+            // 
             // ControlBox
             // 
             AutoScaleDimensions = new SizeF(7F, 17F);
@@ -657,12 +668,14 @@
             ClientSize = new Size(976, 450);
             Controls.Add(tabControl1);
             Controls.Add(toolStrip1);
+            Icon = (Icon)resources.GetObject("$this.Icon");
             MinimizeBox = false;
             Name = "ControlBox";
             ShowInTaskbar = false;
             Text = "离焦屏 - 控制盒";
             Activated += ControlBox_Activated;
             FormClosing += ControlBox_FormClosing;
+            SizeChanged += ControlBox_SizeChanged;
             tabControl1.ResumeLayout(false);
             tabPage1.ResumeLayout(false);
             groupBox1.ResumeLayout(false);
@@ -744,5 +757,6 @@
         private Panel pnlGraph;
         private ToolStripComboBox tscboSize;
         private ToolTip toolTip1;
+        private Label label13;
     }
 }
