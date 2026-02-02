@@ -157,14 +157,18 @@ public partial class MainForm : Form
             // 设置全屏，TopMost，输入穿透
             FormBorderStyle = FormBorderStyle.None;
             WindowState = FormWindowState.Maximized;
+            scaleX = (float)tgtScreenBounds.Width / srcScreenBounds.Width;
+            scaleY = (float)tgtScreenBounds.Height / srcScreenBounds.Height;
         }
         else
         {
-            Location = tgtScreenBounds.Location;
+            if (!tgtScreenBounds.Contains(Location)) Location = tgtScreenBounds.Location;
             scaleX = (float)ClientSize.Width / srcScreenBounds.Width;
             scaleY = (float)ClientSize.Height / srcScreenBounds.Height;
             _titleBarHeight = Height - ClientSize.Height;
         }
+
+
 
         // 初始化屏幕捕获
         _screenCapture = new ScreenCapture(_blurScaleR, _blurScaleG, _blurScaleB, _blurSigmaR, _blurSigmaG, _blurSigmaB, Handle, _srcAdapterIndex, _srcOutputIndex, _frameRate, _fullScreenMode ? _fullScreenBounds.Width : Bounds.Width, _fullScreenMode ? _fullScreenBounds.Height : Bounds.Height);
@@ -205,8 +209,7 @@ public partial class MainForm : Form
 
         // 将源屏幕坐标映射到离焦屏幕
         Point targetPos = _fullScreenMode ?
-            new(cursorPos.X - srcScreenBounds.Left + tgtScreenBounds.Left,
-            cursorPos.Y - srcScreenBounds.Top + tgtScreenBounds.Top)
+            new((int)((cursorPos.X - srcScreenBounds.Left) * scaleX) + tgtScreenBounds.Left, (int)((cursorPos.Y - srcScreenBounds.Top) * scaleY) + tgtScreenBounds.Top)
             :
             new((int)((cursorPos.X - srcScreenBounds.Left) * scaleX) + Left + DefaultMargin.Size.Width,
             (int)((cursorPos.Y - srcScreenBounds.Top) * scaleY) + Top + _titleBarHeight - DefaultMargin.Size.Height);
