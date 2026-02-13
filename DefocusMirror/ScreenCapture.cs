@@ -66,7 +66,7 @@ public partial class ScreenCapture : IDisposable
                     // 将桌面资源复制到屏幕纹理
                     _device.ImmediateContext.CopyResource(texture, _screenTexture);
                     //var debug2 = _screenTexture.GetBuffer();
-                }
+                }                
                 _outputDuplication.ReleaseFrame();
             }
         }

@@ -1,6 +1,6 @@
 ﻿namespace DefocusMirror
 {
-    partial class MainForm
+    partial class Mirror
     {
         /// <summary>
         /// Required designer variable.
@@ -30,21 +30,21 @@
         {
             SuspendLayout();
             // 
-            // MainForm
+            // Mirror
             // 
             AutoScaleDimensions = new SizeF(7F, 17F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 494);
-            Name = "MainForm";
+            Name = "Mirror";
             ShowInTaskbar = false;
             Text = "离焦屏";
-            FormClosed += MainForm_FormClosed;
-            Load += MainForm_Load;
-            Shown += MainForm_Shown;
-            KeyDown += MainForm_KeyDown;
-            MouseClick += MainForm_MouseClick;
-            MouseDoubleClick += MainForm_MouseDoubleClick;
-            Resize += MainForm_Resize;
+            FormClosed += Mirror_FormClosed;
+            Load += Mirror_Load;
+            Shown += Mirror_Shown;
+            LocationChanged += Mirror_LocationChanged;
+            MouseClick += Mirror_MouseClick;
+            MouseDoubleClick += Mirror_MouseDoubleClick;
+            Resize += Mirror_Resize;
             ResumeLayout(false);
         }
 

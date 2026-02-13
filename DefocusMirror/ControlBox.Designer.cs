@@ -32,6 +32,7 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ControlBox));
             tabControl1 = new TabControl();
             tabPage1 = new TabPage();
+            label13 = new Label();
             pnlGraph = new Panel();
             groupBox1 = new GroupBox();
             panel1 = new Panel();
@@ -78,12 +79,13 @@
             toolStripSeparator1 = new ToolStripSeparator();
             notifyIcon1 = new NotifyIcon(components);
             cmsNotify = new ContextMenuStrip(components);
+            启动近视离焦ToolStripMenuItem = new ToolStripMenuItem();
+            toolStripMenuItem2 = new ToolStripSeparator();
             tsmiClose = new ToolStripMenuItem();
             tsmiShowControlBox = new ToolStripMenuItem();
             toolStripMenuItem1 = new ToolStripSeparator();
             tsmiExit = new ToolStripMenuItem();
             toolTip1 = new ToolTip(components);
-            label13 = new Label();
             tabControl1.SuspendLayout();
             tabPage1.SuspendLayout();
             groupBox1.SuspendLayout();
@@ -132,6 +134,16 @@
             tabPage1.TabIndex = 0;
             tabPage1.Text = "快速启动";
             // 
+            // label13
+            // 
+            label13.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Right;
+            label13.ForeColor = Color.Crimson;
+            label13.Location = new Point(723, 142);
+            label13.Name = "label13";
+            label13.Size = new Size(231, 63);
+            label13.TabIndex = 5;
+            label13.Text = "免责声明：本软件仅供内部免费评测，作者对其使用后果不承担任何责任。";
+            // 
             // pnlGraph
             // 
             pnlGraph.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
@@ -145,9 +157,9 @@
             // 
             // groupBox1
             // 
-            groupBox1.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            groupBox1.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             groupBox1.Controls.Add(panel1);
-            groupBox1.Location = new Point(714, 269);
+            groupBox1.Location = new Point(719, 269);
             groupBox1.Name = "groupBox1";
             groupBox1.Size = new Size(237, 118);
             groupBox1.TabIndex = 2;
@@ -228,24 +240,24 @@
             // 
             // btnClose0
             // 
-            btnClose0.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            btnClose0.Location = new Point(714, 213);
+            btnClose0.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            btnClose0.Location = new Point(719, 213);
             btnClose0.Name = "btnClose0";
             btnClose0.Size = new Size(234, 50);
             btnClose0.TabIndex = 0;
-            btnClose0.Text = "关闭离焦屏";
-            toolTip1.SetToolTip(btnClose0, "关闭离焦屏输出，鼠标双击离焦屏或在离焦屏上按下CTL+ALT+Q亦可达到相同效果。注意：如果要退出程序，请点右下角托盘图标，鼠标右键菜单中选择“退出”。");
+            btnClose0.Text = "关闭离焦屏[&X] CTL+ALT+Esc";
+            toolTip1.SetToolTip(btnClose0, "关闭离焦屏输出，鼠标双击离焦屏或在离焦屏上按下CTL+ALT+Esc亦可达到相同效果。注意：如果要退出程序，请点右下角托盘图标，鼠标右键菜单中选择“退出”。");
             btnClose0.UseVisualStyleBackColor = true;
             btnClose0.Click += btnClose_Click;
             // 
             // btnBlue
             // 
             btnBlue.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            btnBlue.Location = new Point(717, 83);
+            btnBlue.Location = new Point(722, 83);
             btnBlue.Name = "btnBlue";
             btnBlue.Size = new Size(234, 50);
             btnBlue.TabIndex = 0;
-            btnBlue.Text = "远视离焦/(R15:G3:B1px)";
+            btnBlue.Text = "远视离焦[&Y]/(R15:G3:B1px)";
             toolTip1.SetToolTip(btnBlue, "启动后离焦屏上将显示一个带m字符的镜像鼠标用于模拟操作离焦屏，请注意与真鼠标指针的差别，不要搞混了。");
             btnBlue.UseVisualStyleBackColor = true;
             btnBlue.Click += btnBlue_Click;
@@ -253,11 +265,11 @@
             // btnRed
             // 
             btnRed.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            btnRed.Location = new Point(717, 17);
+            btnRed.Location = new Point(722, 17);
             btnRed.Name = "btnRed";
             btnRed.Size = new Size(234, 50);
             btnRed.TabIndex = 0;
-            btnRed.Text = "近视离焦/(R1:G3:B15px)";
+            btnRed.Text = "近视离焦[&J]/(R1:G3:B15px)";
             toolTip1.SetToolTip(btnRed, "启动后离焦屏上将显示一个带m字符的镜像鼠标用于模拟操作离焦屏，请注意与真鼠标指针的差别，不要搞混了。");
             btnRed.UseVisualStyleBackColor = true;
             btnRed.Click += btnRed_Click;
@@ -582,11 +594,12 @@
             // 
             tscboSize.Alignment = ToolStripItemAlignment.Right;
             tscboSize.DropDownWidth = 100;
-            tscboSize.Items.AddRange(new object[] { "3840×2160", "3440×1440", "2560×1440", "1920×1200", "1920x1080", "1680x1050", "1440x900", "1280x1024", "1280x960", "1280x720", "1024x768", "800x600" });
+            tscboSize.Items.AddRange(new object[] { "适配目标屏高", "适配目标屏宽", "3840×2160", "3440×1440", "2560×1440", "1920×1200", "1920×1080", "1680×1050", "1440×900", "1280×1024", "1280×960", "1280×720", "1024×768", "800×600" });
             tscboSize.Name = "tscboSize";
-            tscboSize.Size = new Size(100, 25);
-            tscboSize.ToolTipText = "窗口模式下离焦屏的初始尺寸。用户后续可以自由调整窗口尺寸。";
+            tscboSize.Size = new Size(120, 25);
+            tscboSize.ToolTipText = "窗口模式下离焦屏的初始尺寸。用户后续可以自由调整窗口尺寸，亦可用鼠标或CTL+方向键调整窗口位置。";
             tscboSize.Visible = false;
+            tscboSize.DropDown += tscboSize_DropDown;
             // 
             // tsbFullScreen
             // 
@@ -620,46 +633,53 @@
             // 
             // cmsNotify
             // 
-            cmsNotify.Items.AddRange(new ToolStripItem[] { tsmiClose, tsmiShowControlBox, toolStripMenuItem1, tsmiExit });
+            cmsNotify.Items.AddRange(new ToolStripItem[] { 启动近视离焦ToolStripMenuItem, toolStripMenuItem2, tsmiClose, tsmiShowControlBox, toolStripMenuItem1, tsmiExit });
             cmsNotify.Name = "cmsNotify";
-            cmsNotify.Size = new Size(177, 76);
+            cmsNotify.Size = new Size(252, 126);
             cmsNotify.Opening += cmsNotify_Opening;
             cmsNotify.DoubleClick += cmsNotify_DoubleClick;
+            // 
+            // 启动近视离焦ToolStripMenuItem
+            // 
+            启动近视离焦ToolStripMenuItem.Name = "启动近视离焦ToolStripMenuItem";
+            启动近视离焦ToolStripMenuItem.ShortcutKeyDisplayString = "Ctl+Alt+S";
+            启动近视离焦ToolStripMenuItem.Size = new Size(250, 22);
+            启动近视离焦ToolStripMenuItem.Text = "按最近的配置启动(&S)";
+            启动近视离焦ToolStripMenuItem.Click += 启动近视离焦ToolStripMenuItem_Click;
+            // 
+            // toolStripMenuItem2
+            // 
+            toolStripMenuItem2.Name = "toolStripMenuItem2";
+            toolStripMenuItem2.Size = new Size(184, 6);
             // 
             // tsmiClose
             // 
             tsmiClose.Name = "tsmiClose";
-            tsmiClose.Size = new Size(176, 22);
+            tsmiClose.ShortcutKeyDisplayString = "Ctl+Alt+Esc";
+            tsmiClose.Size = new Size(251, 22);
             tsmiClose.Text = "关闭离焦屏输出(&C)";
             tsmiClose.Click += tsmiClose_Click;
             // 
             // tsmiShowControlBox
             // 
             tsmiShowControlBox.Name = "tsmiShowControlBox";
-            tsmiShowControlBox.Size = new Size(176, 22);
+            tsmiShowControlBox.ShortcutKeyDisplayString = "Ctl+Alt+C";
+            tsmiShowControlBox.Size = new Size(251, 22);
             tsmiShowControlBox.Text = "显示控制盒(&N)";
             tsmiShowControlBox.Click += tsmiShowControlBox_Click;
             // 
             // toolStripMenuItem1
             // 
             toolStripMenuItem1.Name = "toolStripMenuItem1";
-            toolStripMenuItem1.Size = new Size(173, 6);
+            toolStripMenuItem1.Size = new Size(184, 6);
             // 
             // tsmiExit
             // 
             tsmiExit.Name = "tsmiExit";
-            tsmiExit.Size = new Size(176, 22);
+            tsmiExit.ShortcutKeyDisplayString = "";
+            tsmiExit.Size = new Size(251, 22);
             tsmiExit.Text = "退出(&X)";
             tsmiExit.Click += tsmiExit_Click;
-            // 
-            // label13
-            // 
-            label13.ForeColor = Color.Crimson;
-            label13.Location = new Point(717, 147);
-            label13.Name = "label13";
-            label13.Size = new Size(231, 63);
-            label13.TabIndex = 4;
-            label13.Text = "免责声明：本软件仅供内部免费评测，作者对其使用后果不承担任何责任。";
             // 
             // ControlBox
             // 
@@ -675,6 +695,7 @@
             Text = "离焦屏 - 控制盒";
             Activated += ControlBox_Activated;
             FormClosing += ControlBox_FormClosing;
+            FormClosed += ControlBox_FormClosed;
             SizeChanged += ControlBox_SizeChanged;
             tabControl1.ResumeLayout(false);
             tabPage1.ResumeLayout(false);
@@ -758,5 +779,7 @@
         private ToolStripComboBox tscboSize;
         private ToolTip toolTip1;
         private Label label13;
+        private ToolStripMenuItem 启动近视离焦ToolStripMenuItem;
+        private ToolStripSeparator toolStripMenuItem2;
     }
 }

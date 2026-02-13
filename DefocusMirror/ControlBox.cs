@@ -4,7 +4,12 @@ namespace DefocusMirror
 {
     public partial class ControlBox : Form
     {
-        private MainForm _mainForm;
+        private const int HOTKEY_SHOW = 2;
+        private const int HOTKEY_CTLB = 10;
+        private const string LAST_BOUNDS = "最近位置尺寸";
+        private const int WM_HOTKEY = 0x0312;
+        private MirrorMode _lastMode;
+        private Mirror _mainForm;
 
         public ControlBox()
         {
@@ -17,14 +22,69 @@ namespace DefocusMirror
             tscboFrom.SelectedIndex = tscboTo.SelectedIndex = 0;
             tscboSize.SelectedIndex = 0;
             if (tscboOutput.Text == tscboTo.Text && tscboTo.Items.Count > 1) tscboTo.SelectedIndex = 1;
+
+            bool success = HotKey.RegisterHotKey(Handle, HOTKEY_SHOW, (uint)(HotKey.KeyModifiers.Ctrl | HotKey.KeyModifiers.Alt), Keys.S);
+            success &= HotKey.RegisterHotKey(Handle, HOTKEY_CTLB, (uint)(HotKey.KeyModifiers.Ctrl | HotKey.KeyModifiers.Alt), Keys.C);
+            if (!success) MessageBox.Show("控制盒热键注册失败(Ctl+Alt+S或Ctl+Alt+C)，可能已被其他程序占用。");
         }
 
-        private static Point Centerize(Rectangle bounds, Size container)
+        public void StartByLastConfig()
+        {
+            switch (_lastMode)
+            {
+                case MirrorMode.Blue:
+                    btnBlue_Click(null, null);
+                    break;
+
+                case MirrorMode.Red:
+                    btnRed_Click(null, null);
+                    break;
+
+                case MirrorMode.Custom:
+                    btnCustom_Click(null, null);
+                    break;
+            }
+        }
+
+        protected override void WndProc(ref Message m)
+        {
+            switch (m.Msg)
+            {
+                case WM_HOTKEY:
+                    {
+                        int id = m.WParam.ToInt32();
+
+                        if (id == HOTKEY_SHOW)
+                        {
+                            StartByLastConfig();
+                            return; // 处理完毕，可不再传递消息
+                        }
+                        else if (id == HOTKEY_CTLB)
+                        {
+                            notifyIcon1_MouseDoubleClick(null, null);
+                            return;
+                        }
+
+                        break;
+                    }
+            }
+
+            base.WndProc(ref m);
+        }
+
+        private static Point Centerize(Rectangle bounds, Rectangle container)
+        {
+            var location = Centerize(bounds, container.Size);
+            location.Offset(container.X, container.Y);
+            return location;
+        }
+
+        private static Point Centerize(Rectangle bounds, Size container, int defaultMargin = 0)
         {
             var marginX = (container.Width - bounds.Width) / 2;
             var marginY = (container.Height - bounds.Height) / 2;
-            marginX = marginX > 0 ? marginX : 50;
-            marginY = marginY > 0 ? marginY : 50;
+            marginX = marginX > 0 ? marginX : defaultMargin;
+            marginY = marginY > 0 ? marginY : defaultMargin;
             var xOffset = bounds.Left;
             xOffset = xOffset < 0 ? marginX - xOffset : marginX;
             var yOffset = bounds.Top;
@@ -34,9 +94,11 @@ namespace DefocusMirror
         }
 
         private static string RemoveUnneededChars(string s) => s.Replace(".", "").Replace("\\", "");
+
         private void btnBlue_Click(object sender, EventArgs e)
         {
-            ShowNewMainForm(3f, 1f, 0f, 1f, 1f, 1f);
+            ShowNewMirror(3f, 1f, 0f, 1f, 1f, 1f);
+            _lastMode = MirrorMode.Blue;
         }
 
         private void btnClose_Click(object sender, EventArgs e)
@@ -46,12 +108,14 @@ namespace DefocusMirror
 
         private void btnCustom_Click(object sender, EventArgs e)
         {
-            ShowNewMainForm((float)numScaleR.Value, (float)numScaleG.Value, (float)numScaleB.Value, (float)numSigmaR.Value, (float)numSigmaG.Value, (float)numSigmaB.Value);
+            ShowNewMirror((float)numScaleR.Value, (float)numScaleG.Value, (float)numScaleB.Value, (float)numSigmaR.Value, (float)numSigmaG.Value, (float)numSigmaB.Value);
+            _lastMode = MirrorMode.Custom;
         }
 
         private void btnRed_Click(object sender, EventArgs e)
         {
-            ShowNewMainForm(0, 1f, 3f, 1f, 1f, 1f);
+            ShowNewMirror(0, 1f, 3f, 1f, 1f, 1f);
+            _lastMode = MirrorMode.Red;
         }
 
         private void cmsNotify_DoubleClick(object sender, EventArgs e)
@@ -67,6 +131,12 @@ namespace DefocusMirror
         {
         }
 
+        private void ControlBox_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            HotKey.UnregisterHotKey(Handle, HOTKEY_SHOW);
+            HotKey.UnregisterHotKey(Handle, HOTKEY_CTLB);
+        }
+
         private void ControlBox_FormClosing(object sender, FormClosingEventArgs e)
         {
             Hide();
@@ -75,14 +145,46 @@ namespace DefocusMirror
 
         private void ControlBox_SizeChanged(object sender, EventArgs e)
         {
-            if (WindowState == FormWindowState.Minimized) this.Hide();
+            if (WindowState == FormWindowState.Minimized) Hide();
         }
 
-        private MainForm CreateNewMainForm(float blurScaleR = 0, float blurScaleG = 0, float blurScaleB = 0, float blurSigmaR = 1, float blurSigmaG = 1, float blurSigmaB = 1)
+        private Mirror CreateNewMirror(float blurScaleR = 0, float blurScaleG = 0, float blurScaleB = 0, float blurSigmaR = 1, float blurSigmaG = 1, float blurSigmaB = 1)
         {
-            var windowSize = tscboSize.Text.Split(['x', 'X', '*', '×']).Select(i => int.TryParse(i, out int s) ? s : 0).ToArray();
-            if (!tsbFullScreen.Checked || windowSize.Length == 2 && windowSize.All(i => i > 0))
-                return new(this, blurScaleR, blurScaleG, blurScaleB, blurSigmaR, blurSigmaG, blurSigmaB, tscboFrom.SelectedIndex, tscboOutput.SelectedIndex, tscboTo.SelectedIndex, ParseFrameRate(), tsbFullScreen.Checked, new(windowSize[0], windowSize[1]));
+            Rectangle mirrorBounds = default;
+            var tgtBounds = Mirror.GetTargetScreenBounds(tscboTo.SelectedIndex);
+            var srcBounds = Mirror.GetSourceScreenBounds(tscboFrom.SelectedIndex, tscboOutput.SelectedIndex);
+
+            var srcRatio = (float)srcBounds.Width / srcBounds.Height;
+
+            switch (tscboSize.Text)
+            {
+                case "适配目标屏高":
+                    mirrorBounds.Height = tgtBounds.Height + DefaultMargin.Vertical;
+                    mirrorBounds.Width = (int)(srcRatio * tgtBounds.Height) + DefaultMargin.Horizontal;
+                    mirrorBounds.Location = Centerize(mirrorBounds, tgtBounds);
+                    break;
+
+                case "适配目标屏宽":
+                    mirrorBounds.Width = tgtBounds.Width + DefaultMargin.Horizontal;
+                    mirrorBounds.Height = (int)(tgtBounds.Width / srcRatio) + DefaultMargin.Vertical;
+                    mirrorBounds.Location = Centerize(mirrorBounds, tgtBounds);
+                    break;
+
+                case LAST_BOUNDS:
+                    mirrorBounds = Mirror.LastBounds;
+                    break;
+
+                default:
+                    {
+                        var windowSize = tscboSize.Text.Split(['x', 'X', '*', '×']).Select(i => int.TryParse(i, out int s) ? s : 0).ToArray();
+                        mirrorBounds = new Rectangle(0, 0, windowSize[0], windowSize[1]);
+                        mirrorBounds.Location = Centerize(mirrorBounds, tgtBounds);
+                        break;
+                    }
+            }
+
+            if (!tsbFullScreen.Checked || (mirrorBounds.Height > 0 && mirrorBounds.Width > 0))
+                return new(this, blurScaleR, blurScaleG, blurScaleB, blurSigmaR, blurSigmaG, blurSigmaB, tscboFrom.SelectedIndex, tscboOutput.SelectedIndex, tscboTo.SelectedIndex, ParseFrameRate(), tsbFullScreen.Checked, mirrorBounds);
             else MessageBox.Show("离焦屏尺寸错误！请确定数字与格式正确。格式:1920x1080", "初始尺寸", MessageBoxButtons.OK, MessageBoxIcon.Error);
             return null;
         }
@@ -96,7 +198,7 @@ namespace DefocusMirror
 
         private void numScaleB_Click(object sender, EventArgs e)
         {
-            trbScaleB.Value = (int)(numScaleB.Value);
+            trbScaleB.Value = (int)numScaleB.Value;
         }
 
         private void numScaleB_ValueChanged(object sender, EventArgs e)
@@ -105,7 +207,7 @@ namespace DefocusMirror
 
         private void numScaleG_Click(object sender, EventArgs e)
         {
-            trbScaleG.Value = (int)(numScaleG.Value);
+            trbScaleG.Value = (int)numScaleG.Value;
         }
 
         private void numScaleG_ValueChanged(object sender, EventArgs e)
@@ -114,7 +216,7 @@ namespace DefocusMirror
 
         private void numScaleR_Click(object sender, EventArgs e)
         {
-            trbScaleR.Value = (int)(numScaleR.Value);
+            trbScaleR.Value = (int)numScaleR.Value;
         }
 
         private void numScaleR_Scroll(object sender, ScrollEventArgs e)
@@ -166,8 +268,8 @@ namespace DefocusMirror
                 else text = s.DeviceName;
                 text = RemoveUnneededChars(text);
 
-                var location = Centerize(new Rectangle(SystemInformation.VirtualScreen.X / 10, SystemInformation.VirtualScreen.Y / 10, SystemInformation.VirtualScreen.Width / 10, SystemInformation.VirtualScreen.Height / 10), pnlGraph.Size);
-                location.Offset(s.Bounds.X / 10, s.Bounds.Y / 10);
+                var location = Centerize(new Rectangle(SystemInformation.VirtualScreen.X / 10, SystemInformation.VirtualScreen.Y / 10, SystemInformation.VirtualScreen.Width / 10, SystemInformation.VirtualScreen.Height / 10), pnlGraph.Size, 50);
+                location.Offset(s.Bounds.X / 10, s.Bounds.Y / 10);  //微缩图里面要缩小10倍
                 var display = new Label()
                 {
                     BorderStyle = BorderStyle.FixedSingle,
@@ -193,7 +295,7 @@ namespace DefocusMirror
             }
         }
 
-        private void ShowNewMainForm(float blurScaleR = 0, float blurScaleG = 0, float blurScaleB = 0, float blurSigmaR = 1, float blurSigmaG = 1, float blurSigmaB = 1)
+        private void ShowNewMirror(float blurScaleR = 0, float blurScaleG = 0, float blurScaleB = 0, float blurSigmaR = 1, float blurSigmaG = 1, float blurSigmaB = 1)
         {
             if (Screen.AllScreens.Length < 2)
                 if (MessageBox.Show("当前未检测第二个显示器或桌面未扩展到第二个显示器，无法正常启动离焦屏！\r请连接至少两个显示器并将桌面扩展（而不是复制）到第二个显示器后重试。如果选择“是”可以继续以窗体模式体验本应用。\r\r要继续吗？", "显示器数量不足", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2)
@@ -201,9 +303,10 @@ namespace DefocusMirror
 
             _mainForm?.Close();
             _mainForm?.Dispose();
-            _mainForm = CreateNewMainForm(blurScaleR, blurScaleG, blurScaleB, blurSigmaR, blurSigmaG, blurSigmaB);
+            _mainForm = CreateNewMirror(blurScaleR, blurScaleG, blurScaleB, blurSigmaR, blurSigmaG, blurSigmaB);
             _mainForm?.Show();
         }
+
         private void trbScaleB_Scroll(object sender, EventArgs e)
         {
             numScaleB.Value = trbScaleB.Value / 10.0m;
@@ -266,6 +369,15 @@ namespace DefocusMirror
             RefreshGraph();
         }
 
+        private void tscboSize_DropDown(object sender, EventArgs e)
+        {
+            if (Mirror.LastBounds != default)
+            {
+                if (!tscboSize.Items[0].ToString().StartsWith(LAST_BOUNDS)) tscboSize.Items.Insert(0, LAST_BOUNDS);
+            }
+            else tscboSize.Items.Remove(LAST_BOUNDS);
+        }
+
         private void tscboTo_SelectedIndexChanged(object sender, EventArgs e)
         {
             RefreshGraph();
@@ -284,6 +396,12 @@ namespace DefocusMirror
         private void tsmiShowControlBox_Click(object sender, EventArgs e)
         {
             notifyIcon1_MouseDoubleClick(sender, null);
+        }
+
+        private void 启动近视离焦ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            tscboSize.Text = LAST_BOUNDS;
+            StartByLastConfig();
         }
     }
 }

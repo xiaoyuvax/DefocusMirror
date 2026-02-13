@@ -5,11 +5,15 @@ using Timer = System.Windows.Forms.Timer;
 
 namespace DefocusMirror;
 
-public partial class MainForm : Form
+public partial class Mirror : Form
 {
     public frmArrow Arrow = new();
     private const int GWL_EXSTYLE = -20;
-    private const int HOTKEY_ID = 1;
+    private const int HOTKEY_QUIT = 1;
+    private const int HOTKEY_UP = 3;
+    private const int HOTKEY_DOWN = 4;
+    private const int HOTKEY_RIGHT = 5;
+    private const int HOTKEY_LEFT = 6;
     private const int HWND_TOPMOST = -1;
     private const int KEY_BREAK = 1;
     private const int KEY_MAKE = 0;
@@ -43,6 +47,7 @@ public partial class MainForm : Form
     private const int SWP_NOMOVE = 0x0002;
     private const int SWP_NOSIZE = 0x0001;
     private const uint VK_ESCAPE = 0x1B;
+    private const int WM_HOTKEY = 0x0312;
     private const int WM_INPUT = 0x00FF;
     private const int WS_EX_LAYERED = 0x80000;
     private const int WS_EX_NOACTIVATE = 0x8000000;
@@ -66,12 +71,14 @@ public partial class MainForm : Form
     private readonly Font defaultFont = new("Tahoma", 8, FontStyle.Regular);
     private Timer _captureTimer;
     private Rectangle _fullScreenBounds;
-    private Size _initialSize;
     private ControlBox _refControlBox;
     private ScreenCapture _screenCapture;
     private int _srcAdapterIndex;
     private int _srcOutputIndex = 0;
+    private Rectangle _srcScreenBounds;
+    private Rectangle _tgtScreenBounds;
     private int _tgtScreenIndex;
+    private Rectangle _windowBounds;
     private bool FormActivated = false;
     private bool FormLoaded = false;
 
@@ -79,17 +86,18 @@ public partial class MainForm : Form
     private float scaleX = 1.0f;
 
     private float scaleY = 1.0f;
-    private Rectangle srcScreenBounds;
-    private Rectangle tgtScreenBounds;
-
-    public MainForm(
+    public Mirror(
         ControlBox controlBox, float blurScaleR = 0, float blurScaleG = 0, float blurScaleB = 0, float blurSigmaR = 1,
         float blurSigmaG = 1, float blurSigmaB = 1, int? adapterSrcIndex = null, int? outputSrcIndex = null,
         int? adapterDstIndex = null, int frameRate = 30, bool fullScreenMode = true,
-        Size initialiSize = default
+        Rectangle initialBounds = default
                    )
     {
         InitializeComponent();
+        KeyPreview = true;
+        StartPosition = FormStartPosition.Manual;
+        Bounds = _windowBounds = initialBounds;
+
         _refControlBox = controlBox;
         _blurScaleR = blurScaleR;
         _blurScaleG = blurScaleG;
@@ -97,15 +105,43 @@ public partial class MainForm : Form
         _blurSigmaR = blurSigmaR;
         _blurSigmaG = blurSigmaG;
         _blurSigmaB = blurSigmaB;
-        _srcAdapterIndex = adapterSrcIndex ?? 0;
-        _tgtScreenIndex = adapterDstIndex ?? 0;
         _frameRate = frameRate;
         _fullScreenMode = fullScreenMode;
+
         _srcOutputIndex = outputSrcIndex ?? 0;
-        Size = _initialSize = initialiSize;
+        _srcAdapterIndex = adapterSrcIndex ?? 0;
+        _tgtScreenIndex = adapterDstIndex ?? 0;
+
+        _tgtScreenBounds = GetTargetScreenBounds(_tgtScreenIndex);
+        _srcScreenBounds = GetSourceScreenBounds(_srcAdapterIndex, _srcOutputIndex);
+
+        bool success = HotKey.RegisterHotKey(Handle, HOTKEY_QUIT, (uint)(HotKey.KeyModifiers.Ctrl | HotKey.KeyModifiers.Alt), Keys.Escape);
+
+        success &= HotKey.RegisterHotKey(Handle, HOTKEY_LEFT, (uint)HotKey.KeyModifiers.Ctrl, Keys.Left);
+        success &= HotKey.RegisterHotKey(Handle, HOTKEY_RIGHT, (uint)HotKey.KeyModifiers.Ctrl, Keys.Right);
+        success &= HotKey.RegisterHotKey(Handle, HOTKEY_UP, (uint)HotKey.KeyModifiers.Ctrl, Keys.Up);
+        success &= HotKey.RegisterHotKey(Handle, HOTKEY_DOWN, (uint)HotKey.KeyModifiers.Ctrl, Keys.Down);
+
+        if (!success) MessageBox.Show("离焦屏热键注册失败(Ctl+Alt+Esc或Ctl+方向键)，可能已被其他程序占用。");
 
         InitializeMirror();
     }
+    public static Rectangle GetSourceScreenBounds(int srcAdapterIndex, int srcOutputIndex)
+    {
+        using var dxgiFactory = new Factory1();
+        using var adapter = dxgiFactory.Adapters[srcAdapterIndex];
+        using var output = adapter.Outputs[srcOutputIndex];
+        var bounds = output.Description.DesktopBounds;
+        return new Rectangle(bounds.Left, bounds.Top, bounds.Right - bounds.Left, bounds.Bottom - bounds.Top);
+    }
+
+    public static Rectangle GetTargetScreenBounds(int tgtScreenIndex) => Screen.AllScreens[tgtScreenIndex].Bounds;
+
+    private Point _preferedLocation;
+
+    public static Rectangle LastBounds;
+
+
 
     protected override void WndProc(ref Message m)
     {
@@ -114,6 +150,39 @@ public partial class MainForm : Form
             case WM_INPUT:
                 {
                     ProcessRawInput(m.LParam);
+                    break;
+                }
+            case WM_HOTKEY:
+                {
+                    int id = m.WParam.ToInt32();
+                    const int MOVE_STEP = 10;
+
+                    if (id == HOTKEY_QUIT) // 检查是否是我们的热键ID
+                    {
+                        // 这里是热键按下后要执行的操作
+                        Close();
+                        return; // 处理完毕，可不再传递消息
+                    }
+                    else if (id == HOTKEY_LEFT)
+                    {
+                        Location = new Point(Location.X - MOVE_STEP, Location.Y);
+                        return;
+                    }
+                    else if (id == HOTKEY_RIGHT)
+                    {
+                        Location = new Point(Location.X + MOVE_STEP, Location.Y);
+                        return;
+                    }
+                    else if (id == HOTKEY_DOWN)
+                    {
+                        Location = new Point(Location.X, Location.Y + MOVE_STEP);
+                        return;
+                    }
+                    else if (id == HOTKEY_UP)
+                    {
+                        Location = new Point(Location.X, Location.Y - MOVE_STEP);
+                        return;
+                    }
                     break;
                 }
         }
@@ -129,42 +198,30 @@ public partial class MainForm : Form
             _screenCapture.Render();
         }
     }
-
-    private Rectangle GetSourceScreenBounds()
-    {
-        using var dxgiFactory = new Factory1();
-        using var adapter = dxgiFactory.Adapters[_srcAdapterIndex];
-        using var output = adapter.Outputs[_srcOutputIndex];
-        var bounds = output.Description.DesktopBounds;
-        return new Rectangle(bounds.Left, bounds.Top, bounds.Right - bounds.Left, bounds.Bottom - bounds.Top);
-    }
-
     private void InitializeMirror()
     {
         _captureTimer?.Stop();
         _screenCapture?.Dispose();
         TopMost = true;
-        StartPosition = FormStartPosition.Manual;
-        tgtScreenBounds = Screen.AllScreens[_tgtScreenIndex].Bounds;
-        srcScreenBounds = GetSourceScreenBounds();
-        Arrow.Bounds = new Rectangle(srcScreenBounds.X, srcScreenBounds.Y, 64, 64);
+        Arrow.Bounds = new Rectangle(_srcScreenBounds.X, _srcScreenBounds.Y, 64, 64);
 
         if (_fullScreenMode)
         {
-            if (Screen.AllScreens.Length == 1) _fullScreenBounds = srcScreenBounds;
-            else Bounds = _fullScreenBounds = tgtScreenBounds;
+            if (Screen.AllScreens.Length == 1) _fullScreenBounds = _srcScreenBounds;
+            else Bounds = _fullScreenBounds = _tgtScreenBounds;
 
             // 设置全屏，TopMost，输入穿透
             FormBorderStyle = FormBorderStyle.None;
             WindowState = FormWindowState.Maximized;
-            scaleX = (float)tgtScreenBounds.Width / srcScreenBounds.Width;
-            scaleY = (float)tgtScreenBounds.Height / srcScreenBounds.Height;
+            scaleX = (float)_tgtScreenBounds.Width / _srcScreenBounds.Width;
+            scaleY = (float)_tgtScreenBounds.Height / _srcScreenBounds.Height;
         }
         else
         {
-            if (!tgtScreenBounds.Contains(Location)) Location = tgtScreenBounds.Location;
-            scaleX = (float)ClientSize.Width / srcScreenBounds.Width;
-            scaleY = (float)ClientSize.Height / srcScreenBounds.Height;
+            if (_preferedLocation! != default) Location = _preferedLocation;
+            else if (!_tgtScreenBounds.Contains(Location)) Location = _tgtScreenBounds.Location;
+            scaleX = (float)ClientSize.Width / _srcScreenBounds.Width;
+            scaleY = (float)ClientSize.Height / _srcScreenBounds.Height;
             _titleBarHeight = Height - ClientSize.Height;
         }
 
@@ -181,23 +238,25 @@ public partial class MainForm : Form
         // 注册RawInput设备
         RegisterRawInput();
     }
-
-    private void MainForm_FormClosed(object sender, FormClosedEventArgs e)
+    private void Mirror_FormClosed(object sender, FormClosedEventArgs e)
     {
+        // 务必在窗体关闭时注销热键
+        HotKey.UnregisterHotKey(Handle, HOTKEY_QUIT);
+        HotKey.UnregisterHotKey(Handle, HOTKEY_UP);
+        HotKey.UnregisterHotKey(Handle, HOTKEY_DOWN);
+        HotKey.UnregisterHotKey(Handle, HOTKEY_LEFT);
+        HotKey.UnregisterHotKey(Handle, HOTKEY_RIGHT);
         _captureTimer.Stop();
         _screenCapture.Dispose();
         Arrow.Close();
     }
 
-    private void MainForm_KeyDown(object sender, KeyEventArgs e)
-    {
-        if (e.KeyValue == 'Q' && e.Alt && e.Control) Close();
-    }
 
-    private void MainForm_Load(object sender, EventArgs e)
+    private void Mirror_Load(object sender, EventArgs e)
     {
         FormLoaded = true;
     }
+
 
     private void ProcessMouseInput(RAWINPUT raw)
     {
@@ -205,14 +264,14 @@ public partial class MainForm : Form
         Point cursorPos = Cursor.Position;
 
         // 检查真鼠标是否在源屏幕内
-        if (!srcScreenBounds.Contains(cursorPos)) return;
+        if (!_srcScreenBounds.Contains(cursorPos)) return;
 
         // 将源屏幕坐标映射到离焦屏幕
         Point targetPos = _fullScreenMode ?
-            new((int)((cursorPos.X - srcScreenBounds.Left) * scaleX) + tgtScreenBounds.Left, (int)((cursorPos.Y - srcScreenBounds.Top) * scaleY) + tgtScreenBounds.Top)
+            new((int)((cursorPos.X - _srcScreenBounds.Left) * scaleX) + _tgtScreenBounds.Left, (int)((cursorPos.Y - _srcScreenBounds.Top) * scaleY) + _tgtScreenBounds.Top)
             :
-            new((int)((cursorPos.X - srcScreenBounds.Left) * scaleX) + Left + DefaultMargin.Size.Width,
-            (int)((cursorPos.Y - srcScreenBounds.Top) * scaleY) + Top + _titleBarHeight - DefaultMargin.Size.Height);
+            new((int)((cursorPos.X - _srcScreenBounds.Left) * scaleX) + Left + DefaultMargin.Size.Width,
+            (int)((cursorPos.Y - _srcScreenBounds.Top) * scaleY) + Top + _titleBarHeight - DefaultMargin.Size.Height);
 
         try
         {
@@ -331,19 +390,19 @@ public partial class MainForm : Form
     // 注册RawInput
     private void RegisterRawInput()
     {
-        RAWINPUTDEVICE[] rid = new RAWINPUTDEVICE[2];
+        RAWINPUTDEVICE[] rid = new RAWINPUTDEVICE[1];
 
         // 注册鼠标
         rid[0].usUsagePage = 0x01;
         rid[0].usUsage = 0x02; // 鼠标
         rid[0].dwFlags = RIDEV_INPUTSINK | RIDEV_DEVNOTIFY;
-        rid[0].hwndTarget = this.Handle;
+        rid[0].hwndTarget = Handle;
 
-        // 注册键盘
-        rid[1].usUsagePage = 0x01;
-        rid[1].usUsage = 0x06; // 键盘
-        rid[1].dwFlags = RIDEV_INPUTSINK | RIDEV_DEVNOTIFY;
-        rid[1].hwndTarget = this.Handle;
+        //// 注册键盘
+        //rid[1].usUsagePage = 0x01;
+        //rid[1].usUsage = 0x06; // 键盘
+        //rid[1].dwFlags = RIDEV_INPUTSINK | RIDEV_DEVNOTIFY;
+        //rid[1].hwndTarget = this.Handle;
 
         if (!RegisterRawInputDevices(rid, (uint)rid.Length, (uint)Marshal.SizeOf(rid[0])))
         {
@@ -390,23 +449,23 @@ public partial class MainForm : Form
     [DllImport("user32.dll", SetLastError = true)]
     private static extern bool RegisterRawInputDevices(RAWINPUTDEVICE[] pRawInputDevices, uint uiNumDevices, uint cbSize);
 
-    private void MainForm_MouseClick(object sender, MouseEventArgs e)
+    private void Mirror_MouseClick(object sender, MouseEventArgs e)
     {
         InitializeMirror();
         ShowArrow();
     }
 
-    private void MainForm_MouseDoubleClick(object sender, MouseEventArgs e)
+    private void Mirror_MouseDoubleClick(object sender, MouseEventArgs e)
     {
         Close();
     }
 
-    private void MainForm_Resize(object sender, EventArgs e)
+    private void Mirror_Resize(object sender, EventArgs e)
     {
         if (FormLoaded) InitializeMirror();
     }
 
-    private void MainForm_Shown(object sender, EventArgs e)
+    private void Mirror_Shown(object sender, EventArgs e)
     {
         ShowArrow();
     }
@@ -415,6 +474,15 @@ public partial class MainForm : Form
     {
         Arrow.Show();
         Arrow.TopMost = true;
+    }
+
+    private void Mirror_LocationChanged(object sender, EventArgs e)
+    {
+        if (FormLoaded)
+        {
+            _preferedLocation = Location;
+            LastBounds = Bounds;
+        }
     }
 
     [StructLayout(LayoutKind.Sequential)]
