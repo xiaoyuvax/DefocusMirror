@@ -4,12 +4,9 @@ namespace DefocusMirror
 {
     public partial class ControlBox : Form
     {
-        private const int HOTKEY_SHOW = 2;
-        private const int HOTKEY_CTLB = 10;
         private const string LAST_BOUNDS = "最近位置尺寸";
-        private const int WM_HOTKEY = 0x0312;
-        private MirrorMode _lastMode;
         private Mirror _mainForm;
+        private MirrorMode _lastMode;
 
         public ControlBox()
         {
@@ -22,54 +19,6 @@ namespace DefocusMirror
             tscboFrom.SelectedIndex = tscboTo.SelectedIndex = 0;
             tscboSize.SelectedIndex = 0;
             if (tscboOutput.Text == tscboTo.Text && tscboTo.Items.Count > 1) tscboTo.SelectedIndex = 1;
-
-            bool success = HotKey.RegisterHotKey(Handle, HOTKEY_SHOW, (uint)(HotKey.KeyModifiers.Ctrl | HotKey.KeyModifiers.Alt), Keys.S);
-            success &= HotKey.RegisterHotKey(Handle, HOTKEY_CTLB, (uint)(HotKey.KeyModifiers.Ctrl | HotKey.KeyModifiers.Alt), Keys.C);
-            if (!success) MessageBox.Show("控制盒热键注册失败(Ctl+Alt+S或Ctl+Alt+C)，可能已被其他程序占用。");
-        }
-
-        public void StartByLastConfig()
-        {
-            switch (_lastMode)
-            {
-                case MirrorMode.Blue:
-                    btnBlue_Click(null, null);
-                    break;
-
-                case MirrorMode.Red:
-                    btnRed_Click(null, null);
-                    break;
-
-                case MirrorMode.Custom:
-                    btnCustom_Click(null, null);
-                    break;
-            }
-        }
-
-        protected override void WndProc(ref Message m)
-        {
-            switch (m.Msg)
-            {
-                case WM_HOTKEY:
-                    {
-                        int id = m.WParam.ToInt32();
-
-                        if (id == HOTKEY_SHOW)
-                        {
-                            StartByLastConfig();
-                            return; // 处理完毕，可不再传递消息
-                        }
-                        else if (id == HOTKEY_CTLB)
-                        {
-                            notifyIcon1_MouseDoubleClick(null, null);
-                            return;
-                        }
-
-                        break;
-                    }
-            }
-
-            base.WndProc(ref m);
         }
 
         private static Point Centerize(Rectangle bounds, Rectangle container)
@@ -118,6 +67,24 @@ namespace DefocusMirror
             _lastMode = MirrorMode.Red;
         }
 
+        public void StartByLastConfig()
+        {
+            switch (_lastMode)
+            {
+                case MirrorMode.Blue:
+                    btnBlue_Click(null, null);
+                    break;
+
+                case MirrorMode.Red:
+                    btnRed_Click(null, null);
+                    break;
+
+                case MirrorMode.Custom:
+                    btnCustom_Click(null, null);
+                    break;
+            }
+        }
+
         private void cmsNotify_DoubleClick(object sender, EventArgs e)
         {
         }
@@ -129,12 +96,6 @@ namespace DefocusMirror
 
         private void ControlBox_Activated(object sender, EventArgs e)
         {
-        }
-
-        private void ControlBox_FormClosed(object sender, FormClosedEventArgs e)
-        {
-            HotKey.UnregisterHotKey(Handle, HOTKEY_SHOW);
-            HotKey.UnregisterHotKey(Handle, HOTKEY_CTLB);
         }
 
         private void ControlBox_FormClosing(object sender, FormClosingEventArgs e)
@@ -198,7 +159,7 @@ namespace DefocusMirror
 
         private void numScaleB_Click(object sender, EventArgs e)
         {
-            trbScaleB.Value = (int)numScaleB.Value;
+            trbScaleB.Value = (int)(numScaleB.Value);
         }
 
         private void numScaleB_ValueChanged(object sender, EventArgs e)
@@ -207,7 +168,7 @@ namespace DefocusMirror
 
         private void numScaleG_Click(object sender, EventArgs e)
         {
-            trbScaleG.Value = (int)numScaleG.Value;
+            trbScaleG.Value = (int)(numScaleG.Value);
         }
 
         private void numScaleG_ValueChanged(object sender, EventArgs e)
@@ -216,7 +177,7 @@ namespace DefocusMirror
 
         private void numScaleR_Click(object sender, EventArgs e)
         {
-            trbScaleR.Value = (int)numScaleR.Value;
+            trbScaleR.Value = (int)(numScaleR.Value);
         }
 
         private void numScaleR_Scroll(object sender, ScrollEventArgs e)
@@ -369,15 +330,6 @@ namespace DefocusMirror
             RefreshGraph();
         }
 
-        private void tscboSize_DropDown(object sender, EventArgs e)
-        {
-            if (Mirror.LastBounds != default)
-            {
-                if (!tscboSize.Items[0].ToString().StartsWith(LAST_BOUNDS)) tscboSize.Items.Insert(0, LAST_BOUNDS);
-            }
-            else tscboSize.Items.Remove(LAST_BOUNDS);
-        }
-
         private void tscboTo_SelectedIndexChanged(object sender, EventArgs e)
         {
             RefreshGraph();
@@ -398,10 +350,18 @@ namespace DefocusMirror
             notifyIcon1_MouseDoubleClick(sender, null);
         }
 
+        private void tscboSize_DropDown(object sender, EventArgs e)
+        {
+            if (Mirror.LastBounds != default)
+            {
+                if (!tscboSize.Items[0].ToString().StartsWith(LAST_BOUNDS)) tscboSize.Items.Insert(0, LAST_BOUNDS);
+            }
+            else tscboSize.Items.Remove(LAST_BOUNDS);
+        }
+
         private void 启动近视离焦ToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            tscboSize.Text = LAST_BOUNDS;
-            StartByLastConfig();
+            StartByLastConfig   ();
         }
     }
 }

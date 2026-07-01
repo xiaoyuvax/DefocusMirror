@@ -245,7 +245,7 @@
             btnClose0.Name = "btnClose0";
             btnClose0.Size = new Size(234, 50);
             btnClose0.TabIndex = 0;
-            btnClose0.Text = "关闭离焦屏[&X] CTL+ALT+Esc";
+            btnClose0.Text = "关闭离焦屏[&X]";
             toolTip1.SetToolTip(btnClose0, "关闭离焦屏输出，鼠标双击离焦屏或在离焦屏上按下CTL+ALT+Esc亦可达到相同效果。注意：如果要退出程序，请点右下角托盘图标，鼠标右键菜单中选择“退出”。");
             btnClose0.UseVisualStyleBackColor = true;
             btnClose0.Click += btnClose_Click;
@@ -597,7 +597,7 @@
             tscboSize.Items.AddRange(new object[] { "适配目标屏高", "适配目标屏宽", "3840×2160", "3440×1440", "2560×1440", "1920×1200", "1920×1080", "1680×1050", "1440×900", "1280×1024", "1280×960", "1280×720", "1024×768", "800×600" });
             tscboSize.Name = "tscboSize";
             tscboSize.Size = new Size(120, 25);
-            tscboSize.ToolTipText = "窗口模式下离焦屏的初始尺寸。用户后续可以自由调整窗口尺寸，亦可用鼠标或CTL+方向键调整窗口位置。";
+            tscboSize.ToolTipText = "窗口模式下离焦屏的初始尺寸。用户后续可以自由调整窗口尺寸，亦可用鼠标或ALT+方向键调整窗口位置。";
             tscboSize.Visible = false;
             tscboSize.DropDown += tscboSize_DropDown;
             // 
@@ -635,49 +635,45 @@
             // 
             cmsNotify.Items.AddRange(new ToolStripItem[] { 启动近视离焦ToolStripMenuItem, toolStripMenuItem2, tsmiClose, tsmiShowControlBox, toolStripMenuItem1, tsmiExit });
             cmsNotify.Name = "cmsNotify";
-            cmsNotify.Size = new Size(252, 126);
+            cmsNotify.Size = new Size(181, 126);
             cmsNotify.Opening += cmsNotify_Opening;
             cmsNotify.DoubleClick += cmsNotify_DoubleClick;
             // 
             // 启动近视离焦ToolStripMenuItem
             // 
             启动近视离焦ToolStripMenuItem.Name = "启动近视离焦ToolStripMenuItem";
-            启动近视离焦ToolStripMenuItem.ShortcutKeyDisplayString = "Ctl+Alt+S";
-            启动近视离焦ToolStripMenuItem.Size = new Size(250, 22);
-            启动近视离焦ToolStripMenuItem.Text = "按最近的配置启动(&S)";
+            启动近视离焦ToolStripMenuItem.Size = new Size(180, 22);
+            启动近视离焦ToolStripMenuItem.Text = "按最近的配置启动";
             启动近视离焦ToolStripMenuItem.Click += 启动近视离焦ToolStripMenuItem_Click;
             // 
             // toolStripMenuItem2
             // 
             toolStripMenuItem2.Name = "toolStripMenuItem2";
-            toolStripMenuItem2.Size = new Size(184, 6);
+            toolStripMenuItem2.Size = new Size(177, 6);
             // 
             // tsmiClose
             // 
             tsmiClose.Name = "tsmiClose";
-            tsmiClose.ShortcutKeyDisplayString = "Ctl+Alt+Esc";
-            tsmiClose.Size = new Size(251, 22);
+            tsmiClose.Size = new Size(180, 22);
             tsmiClose.Text = "关闭离焦屏输出(&C)";
             tsmiClose.Click += tsmiClose_Click;
             // 
             // tsmiShowControlBox
             // 
             tsmiShowControlBox.Name = "tsmiShowControlBox";
-            tsmiShowControlBox.ShortcutKeyDisplayString = "Ctl+Alt+C";
-            tsmiShowControlBox.Size = new Size(251, 22);
+            tsmiShowControlBox.Size = new Size(180, 22);
             tsmiShowControlBox.Text = "显示控制盒(&N)";
             tsmiShowControlBox.Click += tsmiShowControlBox_Click;
             // 
             // toolStripMenuItem1
             // 
             toolStripMenuItem1.Name = "toolStripMenuItem1";
-            toolStripMenuItem1.Size = new Size(184, 6);
+            toolStripMenuItem1.Size = new Size(177, 6);
             // 
             // tsmiExit
             // 
             tsmiExit.Name = "tsmiExit";
-            tsmiExit.ShortcutKeyDisplayString = "";
-            tsmiExit.Size = new Size(251, 22);
+            tsmiExit.Size = new Size(180, 22);
             tsmiExit.Text = "退出(&X)";
             tsmiExit.Click += tsmiExit_Click;
             // 
@@ -695,7 +691,6 @@
             Text = "离焦屏 - 控制盒";
             Activated += ControlBox_Activated;
             FormClosing += ControlBox_FormClosing;
-            FormClosed += ControlBox_FormClosed;
             SizeChanged += ControlBox_SizeChanged;
             tabControl1.ResumeLayout(false);
             tabPage1.ResumeLayout(false);

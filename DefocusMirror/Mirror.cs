@@ -78,7 +78,6 @@ public partial class Mirror : Form
     private Rectangle _srcScreenBounds;
     private Rectangle _tgtScreenBounds;
     private int _tgtScreenIndex;
-    private Rectangle _windowBounds;
     private bool FormActivated = false;
     private bool FormLoaded = false;
 
@@ -96,7 +95,8 @@ public partial class Mirror : Form
         InitializeComponent();
         KeyPreview = true;
         StartPosition = FormStartPosition.Manual;
-        Bounds = _windowBounds = initialBounds;
+        Bounds = initialBounds;
+        _preferedLocation = Bounds.Location;
 
         _refControlBox = controlBox;
         _blurScaleR = blurScaleR;
