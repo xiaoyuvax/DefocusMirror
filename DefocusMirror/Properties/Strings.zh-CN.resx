@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="FormTitle" xml:space="preserve"><value>离焦屏 - 控制盒</value></data>
+  <data name="tabPage1" xml:space="preserve"><value>快速启动</value></data>
+  <data name="tabPage2" xml:space="preserve"><value>高级设置</value></data>
+  <data name="tabPage3" xml:space="preserve"><value>使用说明</value></data>
+  <data name="lblCapture" xml:space="preserve"><value>捕捉自：</value></data>
+  <data name="lblOutput" xml:space="preserve"><value>输出到：</value></data>
+  <data name="lblFPS" xml:space="preserve"><value>帧率：</value></data>
+  <data name="lblDistance" xml:space="preserve"><value>眼距：</value></data>
+  <data name="btnMyopia" xml:space="preserve"><value>近视离焦[&amp;J]/(R1:G3:B15px)</value></data>
+  <data name="btnHyperopia" xml:space="preserve"><value>远视离焦[&amp;Y]/(R15:G3:B1px)</value></data>
+  <data name="btnCloseMirror" xml:space="preserve"><value>关闭离焦屏[&amp;X]</value></data>
+  <data name="btnStart" xml:space="preserve"><value>启动</value></data>
+  <data name="btnClose" xml:space="preserve"><value>关闭</value></data>
+  <data name="btnFullscreen" xml:space="preserve"><value>全屏模式</value></data>
+  <data name="btnWindowed" xml:space="preserve"><value>窗口模式</value></data>
+  <data name="grpRefPixels" xml:space="preserve"><value>参考像素</value></data>
+  <data name="lblRed" xml:space="preserve"><value>红(R)</value></data>
+  <data name="lblGreen" xml:space="preserve"><value>绿(G)</value></data>
+  <data name="lblBlue" xml:space="preserve"><value>蓝(B)</value></data>
+  <data name="lblRSpread" xml:space="preserve"><value>R扩散：</value></data>
+  <data name="lblRIntensity" xml:space="preserve"><value>R强度：</value></data>
+  <data name="lblGSpread" xml:space="preserve"><value>G扩散：</value></data>
+  <data name="lblGIntensity" xml:space="preserve"><value>G强度：</value></data>
+  <data name="lblBSpread" xml:space="preserve"><value>B扩散：</value></data>
+  <data name="lblBIntensity" xml:space="preserve"><value>B强度：</value></data>
+  <data name="menuStartLast" xml:space="preserve"><value>按最近的配置启动</value></data>
+  <data name="menuClose" xml:space="preserve"><value>关闭离焦屏输出(&amp;C)</value></data>
+  <data name="menuShowBox" xml:space="preserve"><value>显示控制盒(&amp;N)</value></data>
+  <data name="menuExit" xml:space="preserve"><value>退出(&amp;X)</value></data>
+  <data name="msgDisclaimer" xml:space="preserve"><value>免责声明：本软件仅供内部免费评测，作者对其使用后果不承担任何责任。</value></data>
+  <data name="msgSelectScreen" xml:space="preserve"><value>请选择源屏和目标屏。</value></data>
+  <data name="msgParamError" xml:space="preserve"><value>参数错误</value></data>
+  <data name="msgSameScreen" xml:space="preserve"><value>源屏与离焦屏不能相同，请重新选择。</value></data>
+  <data name="msgInvalidSize" xml:space="preserve"><value>离焦屏尺寸错误！请确定数字与格式正确。格式:1920x1080</value></data>
+  <data name="msgInitialSize" xml:space="preserve"><value>初始尺寸</value></data>
+  <data name="msgNoMonitor" xml:space="preserve"><value>显示器数量不足</value></data>
+  <data name="msgExtendDesktop" xml:space="preserve"><value>当前未检测第二个显示器或桌面未扩展到第二个显示器，无法正常启动离焦屏！\r请连接至少两个显示器并将桌面扩展（而不是复制）到第二个显示器后重试。如果选择"是"可以继续以窗体模式体验本应用。\r\r要继续吗？</value></data>
+  <data name="srcScreen" xml:space="preserve"><value>源屏</value></data>
+  <data name="mirrorScreen" xml:space="preserve"><value>离焦屏</value></data>
+  <data name="sizeFitHeight" xml:space="preserve"><value>适配目标屏高</value></data>
+  <data name="sizeFitWidth" xml:space="preserve"><value>适配目标屏宽</value></data>
+  <data name="sizeLastBounds" xml:space="preserve"><value>最近位置尺寸</value></data>
+  <data name="tipCloseMirror" xml:space="preserve"><value>关闭离焦屏输出，鼠标双击离焦屏或在离焦屏上按下CTL+ALT+Esc亦可达到相同效果。注意：如果要退出程序，请点右下角托盘图标，鼠标右键菜单中选择"退出"。</value></data>
+  <data name="tipDefocusBtn" xml:space="preserve"><value>启动后离焦屏上将显示一个带m字符的镜像鼠标用于模拟操作离焦屏，请注意与真鼠标指针的差别，不要搞混了。</value></data>
+  <data name="tipCapture" xml:space="preserve"><value>选择需要捕捉画面的屏幕</value></data>
+  <data name="tipSourceScreen" xml:space="preserve"><value>需要捕捉画面的屏幕</value></data>
+  <data name="tipOutput" xml:space="preserve"><value>选择需要输出离焦画面的屏幕</value></data>
+  <data name="tipTargetScreen" xml:space="preserve"><value>用于显示离焦屏画面的屏幕。如果强制选择跟源屏幕相同，那么不会有输出。</value></data>
+  <data name="tipFPS" xml:space="preserve"><value>离焦屏画面输出的帧率 - 如果显卡性能不佳可以设低一点，但一般30帧就好了，看视频或游戏可以设高点。</value></data>
+  <data name="tipDistance" xml:space="preserve"><value>眼睛到屏幕的距离（毫米），直接影响离焦屏模糊圈的呈现大小：距离越远模糊越大，以模拟真实的视网膜离焦信号。</value></data>
+  <data name="tipWindowSize" xml:space="preserve"><value>窗口模式下离焦屏的初始尺寸。用户后续可以自由调整窗口尺寸，亦可用鼠标或ALT+方向键调整窗口位置。</value></data>
+  <data name="tipFullScreen" xml:space="preserve"><value>全屏/窗体模式，适用于两个屏幕解析度不一样但又想保持输出画面纵横比的情况，或者用户想自己控制离焦屏尺寸或比例。</value></data>
+  <data name="langZh" xml:space="preserve"><value>中文</value></data>
+  <data name="langEn" xml:space="preserve"><value>English</value></data>
+  <data name="lblLanguage" xml:space="preserve"><value>语言</value></data>
+</root>

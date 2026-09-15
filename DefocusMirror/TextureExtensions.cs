@@ -5,7 +5,6 @@ using MapFlags = SharpDX.Direct3D11.MapFlags;
 
 namespace DefocusMirror
 {
-
     public static class TextureExtensions
     {
         public static byte[] GetBuffer(this Texture2D texture)
@@ -24,15 +23,22 @@ namespace DefocusMirror
                 CpuAccessFlags = CpuAccessFlags.Read,
                 OptionFlags = ResourceOptionFlags.None
             };
+
             using var stagingTexture = new Texture2D(device, stagingDesc);
             device.ImmediateContext.CopyResource(texture, stagingTexture);
 
-            var mappedSubresource = device.ImmediateContext.MapSubresource(stagingTexture, 0, MapMode.Read, MapFlags.None, out DataStream dataStream);
-            var data = new byte[dataStream.Length];
-            dataStream.ReadExactly(data);
-            return data;
+            var mapped = device.ImmediateContext.MapSubresource(stagingTexture, 0, MapMode.Read, MapFlags.None, out DataStream dataStream);
+            try
+            {
+                var data = new byte[dataStream.Length];
+                dataStream.ReadExactly(data);
+                return data;
+            }
+            finally
+            {
+                device.ImmediateContext.UnmapSubresource(stagingTexture, 0);
+            }
         }
-
 
         public static byte[] GetBuffer2(this Texture2D texture)
         {
@@ -50,14 +56,20 @@ namespace DefocusMirror
                 CpuAccessFlags = CpuAccessFlags.Read,
                 OptionFlags = ResourceOptionFlags.None
             };
-            var stagingTexture = new Texture2D(device, stagingDesc);
 
+            using var stagingTexture = new Texture2D(device, stagingDesc);
             device.ImmediateContext.CopyResource(texture, stagingTexture);
-            var mappedSubresource = device.ImmediateContext.MapSubresource(stagingTexture, 0, MapMode.Read, MapFlags.None, out DataStream dataStream);
-            using var st = new StreamReader(dataStream);
-            return [.. st.ReadToEnd().Select(c => (byte)c)];
+
+            var mapped = device.ImmediateContext.MapSubresource(stagingTexture, 0, MapMode.Read, MapFlags.None, out DataStream dataStream);
+            try
+            {
+                using var st = new StreamReader(dataStream);
+                return [.. st.ReadToEnd().Select(c => (byte)c)];
+            }
+            finally
+            {
+                device.ImmediateContext.UnmapSubresource(stagingTexture, 0);
+            }
         }
-
-
     }
 }

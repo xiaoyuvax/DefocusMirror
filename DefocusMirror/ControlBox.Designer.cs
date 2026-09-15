@@ -46,6 +46,12 @@
             btnBlue = new Button();
             btnRed = new Button();
             tabPage2 = new TabPage();
+            tabPage3 = new TabPage();
+            fctbReadme = new FastColoredTextBoxNS.FastColoredTextBox();
+            tsddLanguage = new ToolStripDropDownButton();
+            tsmiLangZh = new ToolStripMenuItem();
+            tsmiLangEn = new ToolStripMenuItem();
+            lblVersion = new Label();
             label6 = new Label();
             label3 = new Label();
             label5 = new Label();
@@ -69,11 +75,12 @@
             toolStrip1 = new ToolStrip();
             toolStripLabel1 = new ToolStripLabel();
             tscboFrom = new ToolStripComboBox();
-            tscboOutput = new ToolStripComboBox();
             toolStripLabel2 = new ToolStripLabel();
             tscboTo = new ToolStripComboBox();
             toolStripLabel3 = new ToolStripLabel();
             tscboFrameRate = new ToolStripComboBox();
+            toolStripLabel4 = new ToolStripLabel();
+            tscboDistance = new ToolStripComboBox();
             tscboSize = new ToolStripComboBox();
             tsbFullScreen = new ToolStripButton();
             toolStripSeparator1 = new ToolStripSeparator();
@@ -111,6 +118,7 @@
             // 
             tabControl1.Controls.Add(tabPage1);
             tabControl1.Controls.Add(tabPage2);
+            tabControl1.Controls.Add(tabPage3);
             tabControl1.Dock = DockStyle.Fill;
             tabControl1.Location = new Point(0, 25);
             tabControl1.Name = "tabControl1";
@@ -122,6 +130,7 @@
             // 
             tabPage1.BackColor = SystemColors.Control;
             tabPage1.Controls.Add(label13);
+            tabPage1.Controls.Add(lblVersion);
             tabPage1.Controls.Add(pnlGraph);
             tabPage1.Controls.Add(groupBox1);
             tabPage1.Controls.Add(btnClose0);
@@ -140,9 +149,20 @@
             label13.ForeColor = Color.Crimson;
             label13.Location = new Point(723, 142);
             label13.Name = "label13";
-            label13.Size = new Size(231, 63);
+            label13.Size = new Size(231, 46);
             label13.TabIndex = 5;
             label13.Text = "免责声明：本软件仅供内部免费评测，作者对其使用后果不承担任何责任。";
+            // 
+            // lblVersion
+            // 
+            lblVersion.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            lblVersion.ForeColor = SystemColors.ControlDarkDark;
+            lblVersion.Location = new Point(719, 194);
+            lblVersion.Name = "lblVersion";
+            lblVersion.Size = new Size(234, 17);
+            lblVersion.TabIndex = 6;
+            lblVersion.Text = "v" + typeof(ControlBox).Assembly.GetName().Version?.ToString(3);
+            lblVersion.TextAlign = ContentAlignment.TopRight;
             // 
             // pnlGraph
             // 
@@ -303,6 +323,28 @@
             tabPage2.Size = new Size(968, 395);
             tabPage2.TabIndex = 1;
             tabPage2.Text = "高级设置";
+            // 
+            // tabPage3
+            // 
+            tabPage3.Controls.Add(fctbReadme);
+            tabPage3.Location = new Point(4, 26);
+            tabPage3.Name = "tabPage3";
+            tabPage3.Padding = new Padding(3);
+            tabPage3.Size = new Size(968, 395);
+            tabPage3.TabIndex = 2;
+            tabPage3.Text = "使用说明";
+            // 
+            // fctbReadme
+            // 
+            fctbReadme.Dock = DockStyle.Fill;
+            fctbReadme.ReadOnly = true;
+            fctbReadme.ShowLineNumbers = false;
+            fctbReadme.Name = "fctbReadme";
+            fctbReadme.Size = new Size(962, 389);
+            fctbReadme.TabIndex = 0;
+            fctbReadme.Font = new Font("Consolas", 10F);
+            fctbReadme.Language = FastColoredTextBoxNS.Text.Language.Markdown;
+            fctbReadme.TextChanged += fctbReadme_TextChanged;
             // 
             // label6
             // 
@@ -531,7 +573,7 @@
             // 
             // toolStrip1
             // 
-            toolStrip1.Items.AddRange(new ToolStripItem[] { toolStripLabel1, tscboFrom, tscboOutput, toolStripLabel2, tscboTo, toolStripLabel3, tscboFrameRate, tscboSize, tsbFullScreen, toolStripSeparator1 });
+            toolStrip1.Items.AddRange(new ToolStripItem[] { toolStripLabel1, tscboFrom, toolStripLabel2, tscboTo, toolStripLabel3, tscboFrameRate, toolStripLabel4, tscboDistance, tscboSize, tsbFullScreen, toolStripSeparator1, tsddLanguage });
             toolStrip1.Location = new Point(0, 0);
             toolStrip1.Name = "toolStrip1";
             toolStrip1.Size = new Size(976, 25);
@@ -543,22 +585,15 @@
             toolStripLabel1.Name = "toolStripLabel1";
             toolStripLabel1.Size = new Size(56, 22);
             toolStripLabel1.Text = "捕捉自：";
-            toolStripLabel1.ToolTipText = "选择需要捕捉画面的适配器和屏幕输出";
+            toolStripLabel1.ToolTipText = "选择需要捕捉画面的屏幕";
             // 
             // tscboFrom
             // 
             tscboFrom.DropDownWidth = 200;
             tscboFrom.Name = "tscboFrom";
             tscboFrom.Size = new Size(120, 25);
-            tscboFrom.ToolTipText = "需要捕捉画面的适配器";
+            tscboFrom.ToolTipText = "需要捕捉画面的屏幕";
             tscboFrom.SelectedIndexChanged += tscboFrom_SelectedIndexChanged;
-            // 
-            // tscboOutput
-            // 
-            tscboOutput.Name = "tscboOutput";
-            tscboOutput.Size = new Size(121, 25);
-            tscboOutput.ToolTipText = "需要捕捉画面的适配器上可选的屏幕";
-            tscboOutput.SelectedIndexChanged += tscboOutput_SelectedIndexChanged;
             // 
             // toolStripLabel2
             // 
@@ -589,6 +624,21 @@
             tscboFrameRate.Size = new Size(75, 25);
             tscboFrameRate.Text = "30";
             tscboFrameRate.ToolTipText = "离焦屏画面输出的帧率 - 如果显卡性能不佳可以设低一点，但一般30帧就好了，看视频或游戏可以设高点。";
+            // 
+            // toolStripLabel4
+            // 
+            toolStripLabel4.Name = "toolStripLabel4";
+            toolStripLabel4.Size = new Size(44, 22);
+            toolStripLabel4.Text = "眼距：";
+            toolStripLabel4.ToolTipText = "眼睛到屏幕的距离（毫米），直接影响离焦屏模糊圈的呈现大小：距离越远模糊越大，以模拟真实的视网膜离焦信号。";
+            // 
+            // tscboDistance
+            // 
+            tscboDistance.Items.AddRange(new object[] { "300", "400", "500", "600", "700", "800", "1000", "1500", "2000" });
+            tscboDistance.Name = "tscboDistance";
+            tscboDistance.Size = new Size(75, 25);
+            tscboDistance.Text = "700";
+            tscboDistance.ToolTipText = "眼睛到屏幕的距离（毫米），直接影响离焦屏模糊圈的呈现大小：距离越远模糊越大，以模拟真实的视网膜离焦信号。";
             // 
             // tscboSize
             // 
@@ -621,6 +671,32 @@
             toolStripSeparator1.Alignment = ToolStripItemAlignment.Right;
             toolStripSeparator1.Name = "toolStripSeparator1";
             toolStripSeparator1.Size = new Size(6, 25);
+            // 
+            // tsddLanguage
+            // 
+            tsddLanguage.Alignment = ToolStripItemAlignment.Right;
+            tsddLanguage.DisplayStyle = ToolStripItemDisplayStyle.Text;
+            tsddLanguage.DropDownItems.AddRange(new ToolStripItem[] { tsmiLangZh, tsmiLangEn });
+            tsddLanguage.Image = (Image)resources.GetObject("tsddLanguage.Image");
+            tsddLanguage.ImageTransparentColor = Color.Magenta;
+            tsddLanguage.Name = "tsddLanguage";
+            tsddLanguage.Size = new Size(42, 22);
+            tsddLanguage.Text = "语言";
+            tsddLanguage.ToolTipText = "选择界面语言 / Select interface language";
+            // 
+            // tsmiLangZh
+            // 
+            tsmiLangZh.Name = "tsmiLangZh";
+            tsmiLangZh.Size = new Size(100, 22);
+            tsmiLangZh.Text = "中文";
+            tsmiLangZh.Click += tsmiLangZh_Click;
+            // 
+            // tsmiLangEn
+            // 
+            tsmiLangEn.Name = "tsmiLangEn";
+            tsmiLangEn.Size = new Size(100, 22);
+            tsmiLangEn.Text = "English";
+            tsmiLangEn.Click += tsmiLangEn_Click;
             // 
             // notifyIcon1
             // 
@@ -756,10 +832,11 @@
         private ToolStripMenuItem tsmiShowControlBox;
         private ToolStripSeparator toolStripMenuItem1;
         private ToolStripMenuItem tsmiExit;
-        private ToolStripComboBox tscboOutput;
         private Button btnClose0;
         private ToolStripLabel toolStripLabel3;
         private ToolStripComboBox tscboFrameRate;
+        private ToolStripLabel toolStripLabel4;
+        private ToolStripComboBox tscboDistance;
         private GroupBox groupBox1;
         private Label label9;
         private Label label8;
@@ -776,5 +853,11 @@
         private Label label13;
         private ToolStripMenuItem 启动近视离焦ToolStripMenuItem;
         private ToolStripSeparator toolStripMenuItem2;
+        private TabPage tabPage3;
+        private FastColoredTextBoxNS.FastColoredTextBox fctbReadme;
+        private ToolStripDropDownButton tsddLanguage;
+        private ToolStripMenuItem tsmiLangZh;
+        private ToolStripMenuItem tsmiLangEn;
+        private Label lblVersion;
     }
 }

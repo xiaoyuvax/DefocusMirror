@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="FormTitle" xml:space="preserve"><value>Defocus Mirror - Control Box</value></data>
+  <data name="tabPage1" xml:space="preserve"><value>Quick Start</value></data>
+  <data name="tabPage2" xml:space="preserve"><value>Advanced</value></data>
+  <data name="tabPage3" xml:space="preserve"><value>Guide</value></data>
+  <data name="lblCapture" xml:space="preserve"><value>Capture from:</value></data>
+  <data name="lblOutput" xml:space="preserve"><value>Output to:</value></data>
+  <data name="lblFPS" xml:space="preserve"><value>FPS:</value></data>
+  <data name="lblDistance" xml:space="preserve"><value>Distance:</value></data>
+  <data name="btnMyopia" xml:space="preserve"><value>Myopia defocus [&amp;J]/(R1:G3:B15px)</value></data>
+  <data name="btnHyperopia" xml:space="preserve"><value>Hyperopia defocus [&amp;Y]/(R15:G3:B1px)</value></data>
+  <data name="btnCloseMirror" xml:space="preserve"><value>Close mirror [&amp;X]</value></data>
+  <data name="btnStart" xml:space="preserve"><value>Start</value></data>
+  <data name="btnClose" xml:space="preserve"><value>Close</value></data>
+  <data name="btnFullscreen" xml:space="preserve"><value>Fullscreen</value></data>
+  <data name="btnWindowed" xml:space="preserve"><value>Windowed</value></data>
+  <data name="grpRefPixels" xml:space="preserve"><value>Reference Pixels</value></data>
+  <data name="lblRed" xml:space="preserve"><value>Red (R)</value></data>
+  <data name="lblGreen" xml:space="preserve"><value>Green (G)</value></data>
+  <data name="lblBlue" xml:space="preserve"><value>Blue (B)</value></data>
+  <data name="lblRSpread" xml:space="preserve"><value>R spread:</value></data>
+  <data name="lblRIntensity" xml:space="preserve"><value>R intensity:</value></data>
+  <data name="lblGSpread" xml:space="preserve"><value>G spread:</value></data>
+  <data name="lblGIntensity" xml:space="preserve"><value>G intensity:</value></data>
+  <data name="lblBSpread" xml:space="preserve"><value>B spread:</value></data>
+  <data name="lblBIntensity" xml:space="preserve"><value>B intensity:</value></data>
+  <data name="menuStartLast" xml:space="preserve"><value>Start with last config</value></data>
+  <data name="menuClose" xml:space="preserve"><value>Close defocus output (&amp;C)</value></data>
+  <data name="menuShowBox" xml:space="preserve"><value>Show control box (&amp;N)</value></data>
+  <data name="menuExit" xml:space="preserve"><value>Exit (&amp;X)</value></data>
+  <data name="msgDisclaimer" xml:space="preserve"><value>Disclaimer: For evaluation only. Author assumes no responsibility.</value></data>
+  <data name="msgSelectScreen" xml:space="preserve"><value>Please select source and target screens.</value></data>
+  <data name="msgParamError" xml:space="preserve"><value>Parameter Error</value></data>
+  <data name="msgSameScreen" xml:space="preserve"><value>Source and mirror screens cannot be the same.</value></data>
+  <data name="msgInvalidSize" xml:space="preserve"><value>Invalid mirror size! Use format: 1920x1080</value></data>
+  <data name="msgInitialSize" xml:space="preserve"><value>Initial Size</value></data>
+  <data name="msgNoMonitor" xml:space="preserve"><value>Insufficient Monitors</value></data>
+  <data name="msgExtendDesktop" xml:space="preserve"><value>No second monitor detected or desktop is not extended. Please connect at least two monitors and extend (not duplicate) your desktop.\r\rDo you want to continue in windowed mode?</value></data>
+  <data name="srcScreen" xml:space="preserve"><value>Source</value></data>
+  <data name="mirrorScreen" xml:space="preserve"><value>Mirror</value></data>
+  <data name="sizeFitHeight" xml:space="preserve"><value>Fit target height</value></data>
+  <data name="sizeFitWidth" xml:space="preserve"><value>Fit target width</value></data>
+  <data name="sizeLastBounds" xml:space="preserve"><value>Last position &amp; size</value></data>
+  <data name="tipCloseMirror" xml:space="preserve"><value>Close the defocus mirror. Double-click the mirror or press Ctrl+Alt+Esc. To exit, right-click tray icon and select Exit.</value></data>
+  <data name="tipDefocusBtn" xml:space="preserve"><value>A mirrored cursor with 'm' markers will appear on the mirror screen. Don't confuse it with the real cursor.</value></data>
+  <data name="tipCapture" xml:space="preserve"><value>Select the screen to capture</value></data>
+  <data name="tipSourceScreen" xml:space="preserve"><value>Source screen to capture</value></data>
+  <data name="tipOutput" xml:space="preserve"><value>Select the screen for defocus output</value></data>
+  <data name="tipTargetScreen" xml:space="preserve"><value>Screen for defocus output. Same as source = no output.</value></data>
+  <data name="tipFPS" xml:space="preserve"><value>Frame rate for defocus output. Lower if GPU struggles. 30fps usually fine; 50-60 for video/gaming.</value></data>
+  <data name="tipDistance" xml:space="preserve"><value>Viewing distance (mm). Larger distance = larger blur circle, simulating real retinal defocus.</value></data>
+  <data name="tipWindowSize" xml:space="preserve"><value>Initial window size in windowed mode. You can resize and reposition freely.</value></data>
+  <data name="tipFullScreen" xml:space="preserve"><value>Toggle fullscreen/windowed. Use windowed when monitors have different resolutions.</value></data>
+  <data name="langZh" xml:space="preserve"><value>中文</value></data>
+  <data name="langEn" xml:space="preserve"><value>English</value></data>
+  <data name="lblLanguage" xml:space="preserve"><value>Language</value></data>
+</root>

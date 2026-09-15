@@ -12,147 +12,79 @@ cbuffer ScreenSizeBuffer : register(b0)
     float blurSigmaB : packoffset(c1.w);
 }
 
-static const int radius = 2;
-static const int radiusN = -2;
-static const int kernelSize = 5; // 2*radius+1
+static const int radius = 3;
+static const int radiusN = -3;
+static const int kernelSize = 7;
 
 float4 main(float4 position : SV_POSITION, float2 texCoord : TEXCOORD0) : SV_TARGET
 {
     float2 texelSize = 1.0 / float2(screenSize_x, screenSize_y);
     float4 color = 0;
-    
-    // 在函数内部声明和初始化权重数组
-    float weightR[kernelSize];
-    float weightG[kernelSize];
-    float weightB[kernelSize];
-    
-    // 初始化权重数组
-    for (int i = 0; i < kernelSize; ++i)
-    {
-        weightR[i] = 0.0f;
-        weightG[i] = 0.0f;
-        weightB[i] = 0.0f;
-    }
 
-    // R通道：分离高斯（先水平后垂直）
-    if (blurScaleR > 0.0f)
-    {
-        float sigma2R = blurSigmaR * blurSigmaR;
-        for (int i = 0; i < kernelSize; ++i)
-        {
-            int offset = i + radiusN;
-            weightR[i] = exp(-(offset * offset) / (2.0f * sigma2R));
-        }
-    }
-
-    // G通道：分离高斯
-    if (blurScaleG > 0.0f)
-    {
-        float sigma2G = blurSigmaG * blurSigmaG;
-        for (int i = 0; i < kernelSize; ++i)
-        {
-            int offset = i + radiusN;
-            weightG[i] = exp(-(offset * offset) / (2.0f * sigma2G));
-        }
-    }
-
-    // B通道：分离高斯
-    if (blurScaleB > 0.0f)
-    {
-        float sigma2B = blurSigmaB * blurSigmaB;
-        for (int i = 0; i < kernelSize; ++i)
-        {
-            int offset = i + radiusN;
-            weightB[i] = exp(-(offset * offset) / (2.0f * sigma2B));
-        }
-    }
-
-    // R通道处理
-    if (blurScaleR > 0.0f)
-    {
-        float sumR = 0.0f;
-        float tempR = 0.0f;
-        // 水平方向卷积
-        for (int i = 0; i < kernelSize; ++i)
-        {
-            float2 offset = float2(i + radiusN, 0) * texelSize * blurScaleR;
-            float weight = weightR[i];
-            tempR += screenTexture.Sample(sampler0, texCoord + offset).r * weight;
-            sumR += weight;
-        }
-        tempR /= sumR;
-        sumR = 0.0f;
-        for (int j = 0; j < kernelSize; ++j)
-        {
-            float2 offset = float2(0, j + radiusN) * texelSize * blurScaleR;
-            float weight = weightR[j];
-            float sampleR = screenTexture.Sample(sampler0, texCoord + offset).r;
-            color.r += sampleR * weight;
-            sumR += weight;
-        }
-        color.r /= sumR;
-    }
-    else
+    // R channel
+    if (blurScaleR == 0)
     {
         color.r = screenTexture.Sample(sampler0, texCoord).r;
     }
-
-    // G通道处理
-    if (blurScaleG > 0.0f)
-    {
-        float sumG = 0.0f;
-        float tempG = 0.0f;
-        for (int i = 0; i < kernelSize; ++i)
-        {
-            float2 offset = float2(i + radiusN, 0) * texelSize * blurScaleG;
-            float weight = weightG[i];
-            tempG += screenTexture.Sample(sampler0, texCoord + offset).g * weight;
-            sumG += weight;
-        }
-        tempG /= sumG;
-        sumG = 0.0f;
-        for (int j = 0; j < kernelSize; ++j)
-        {
-            float2 offset = float2(0, j + radiusN) * texelSize * blurScaleG;
-            float weight = weightG[j];
-            float sampleG = screenTexture.Sample(sampler0, texCoord + offset).g;
-            color.g += sampleG * weight;
-            sumG += weight;
-        }
-        color.g /= sumG;
-    }
     else
+    {
+        float sigma2R = 2.0 * blurSigmaR * blurSigmaR;
+        float sumR = 0.0;
+        for (int i = radiusN; i <= radius; i++)
+        {
+            for (int j = radiusN; j <= radius; j++)
+            {
+                float2 offset = float2(i, j) * texelSize * blurScaleR;
+                float weight = exp(-(i * i + j * j) / sigma2R);
+                color.r += screenTexture.Sample(sampler0, texCoord + offset).r * weight;
+                sumR += weight;
+            }
+        }
+        color.r /= sumR;
+    }
+
+    // G channel
+    if (blurScaleG == 0)
     {
         color.g = screenTexture.Sample(sampler0, texCoord).g;
     }
-
-    // B通道处理
-    if (blurScaleB > 0.0f)
+    else
     {
-        float sumB = 0.0f;
-        float tempB = 0.0f;
-        for (int i = 0; i < kernelSize; ++i)
+        float sigma2G = 2.0 * blurSigmaG * blurSigmaG;
+        float sumG = 0.0;
+        for (int ig = radiusN; ig <= radius; ig++)
         {
-            float2 offset = float2(i + radiusN, 0) * texelSize * blurScaleB;
-            float weight = weightB[i];
-            tempB += screenTexture.Sample(sampler0, texCoord + offset).b * weight;
-            sumB += weight;
+            for (int jg = radiusN; jg <= radius; jg++)
+            {
+                float2 offset = float2(ig, jg) * texelSize * blurScaleG;
+                float weight = exp(-(ig * ig + jg * jg) / sigma2G);
+                color.g += screenTexture.Sample(sampler0, texCoord + offset).g * weight;
+                sumG += weight;
+            }
         }
-        tempB /= sumB;
-        sumB = 0.0f;
-        for (int j = 0; j < kernelSize; ++j)
-        {
-            float2 offset = float2(0, j + radiusN) * texelSize * blurScaleB;
-            float weight = weightB[j];
-            float sampleB = screenTexture.Sample(sampler0, texCoord + offset).b;
-            color.b += sampleB * weight;
-            sumB += weight;
-        }
-        color.b /= sumB;
+        color.g /= sumG;
+    }
+
+    // B channel
+    if (blurScaleB == 0)
+    {
+        color.b = screenTexture.Sample(sampler0, texCoord).b;
     }
     else
     {
-        color.b = screenTexture.Sample(sampler0, texCoord).b;
+        float sigma2B = 2.0 * blurSigmaB * blurSigmaB;
+        float sumB = 0.0;
+        for (int ib = radiusN; ib <= radius; ib++)
+        {
+            for (int jb = radiusN; jb <= radius; jb++)
+            {
+                float2 offset = float2(ib, jb) * texelSize * blurScaleB;
+                float weight = exp(-(ib * ib + jb * jb) / sigma2B);
+                color.b += screenTexture.Sample(sampler0, texCoord + offset).b * weight;
+                sumB += weight;
+            }
+        }
+        color.b /= sumB;
     }
 
     return color;
