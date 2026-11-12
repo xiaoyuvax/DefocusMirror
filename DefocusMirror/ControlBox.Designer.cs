@@ -47,7 +47,7 @@
             btnRed = new Button();
             tabPage2 = new TabPage();
             tabPage3 = new TabPage();
-            fctbReadme = new FastColoredTextBoxNS.FastColoredTextBox();
+            markdownReadme = new CDS.Markdown.MarkdownTextBox();
             tsddLanguage = new ToolStripDropDownButton();
             tsmiLangZh = new ToolStripMenuItem();
             tsmiLangEn = new ToolStripMenuItem();
@@ -326,7 +326,7 @@
             // 
             // tabPage3
             // 
-            tabPage3.Controls.Add(fctbReadme);
+            tabPage3.Controls.Add(markdownReadme);
             tabPage3.Location = new Point(4, 26);
             tabPage3.Name = "tabPage3";
             tabPage3.Padding = new Padding(3);
@@ -334,17 +334,16 @@
             tabPage3.TabIndex = 2;
             tabPage3.Text = "使用说明";
             // 
-            // fctbReadme
+            // markdownReadme
             // 
-            fctbReadme.Dock = DockStyle.Fill;
-            fctbReadme.ReadOnly = true;
-            fctbReadme.ShowLineNumbers = false;
-            fctbReadme.Name = "fctbReadme";
-            fctbReadme.Size = new Size(962, 389);
-            fctbReadme.TabIndex = 0;
-            fctbReadme.Font = new Font("Consolas", 10F);
-            fctbReadme.Language = FastColoredTextBoxNS.Text.Language.Markdown;
-            fctbReadme.TextChanged += fctbReadme_TextChanged;
+            markdownReadme.Dock = DockStyle.Fill;
+            markdownReadme.ReadOnly = true;
+            markdownReadme.BorderStyle = BorderStyle.None;
+            markdownReadme.ScrollBars = RichTextBoxScrollBars.Vertical;
+            markdownReadme.Name = "markdownReadme";
+            markdownReadme.Size = new Size(962, 389);
+            markdownReadme.TabIndex = 0;
+            markdownReadme.Font = new Font("Microsoft YaHei UI", 10F);
             // 
             // label6
             // 
@@ -854,7 +853,7 @@
         private ToolStripMenuItem 启动近视离焦ToolStripMenuItem;
         private ToolStripSeparator toolStripMenuItem2;
         private TabPage tabPage3;
-        private FastColoredTextBoxNS.FastColoredTextBox fctbReadme;
+        private CDS.Markdown.MarkdownTextBox markdownReadme;
         private ToolStripDropDownButton tsddLanguage;
         private ToolStripMenuItem tsmiLangZh;
         private ToolStripMenuItem tsmiLangEn;

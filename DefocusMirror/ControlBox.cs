@@ -1,7 +1,6 @@
 ﻿using System.Globalization;
 using System.Reflection;
-using FastColoredTextBoxNS;
-using FastColoredTextBoxNS.Text;
+using System.Runtime.InteropServices;
 
 namespace DefocusMirror;
 
@@ -13,9 +12,10 @@ public partial class ControlBox : Form
     private const int MIN_SCREEN_COUNT = 2;
     private const float DEFAULT_SIGMA = 1f;
     private const int SIGMA_MULTIPLIER = 10;
-    private const int MINI_MAP_DIVISOR = 10;
+    private const int GRAPH_MARGIN = 20;
     private const int STICKER_DELAY_MS = 1000;
     private const int DEFAULT_FRAME_RATE = 30;
+    private static readonly IntPtr PerMonitorAwareV2 = (IntPtr)(-4);
 
     private static readonly char[] SizeSeparators = ['x', 'X', '*', '×'];
 
@@ -132,10 +132,11 @@ public partial class ControlBox : Form
             var path = Path.Combine(dir, $"Readme{suffix}.md");
             if (File.Exists(path))
             {
-                fctbReadme.Text = File.ReadAllText(path);
-                fctbReadme.SelectionStart = 0;
-                fctbReadme.SelectionLength = 0;
-                fctbReadme.DoSelectionVisible();
+                _ = markdownReadme.Handle;
+                markdownReadme.SetMarkdown(File.ReadAllText(path));
+                markdownReadme.SelectionStart = 0;
+                markdownReadme.SelectionLength = 0;
+                markdownReadme.ScrollToCaret();
             }
         }
         catch { }
@@ -336,6 +337,9 @@ public partial class ControlBox : Form
 
     private void pnlGraph_Resize(object sender, EventArgs e) => RefreshGraph();
 
+    [DllImport("user32.dll")]
+    private static extern IntPtr SetThreadDpiAwarenessContext(IntPtr context);
+
     private void RefreshGraph()
     {
         pnlGraph.Controls.Clear();
@@ -343,7 +347,22 @@ public partial class ControlBox : Form
         var srcLabel = L.S("srcScreen");
         var mirrorLabel = L.S("mirrorScreen");
 
-        foreach (var s in Screen.AllScreens)
+        // 该进程按系统 DPI 虚拟化屏幕坐标，各屏会被缩成接近等大且桌面上出现假空隙；切到每屏感知再取物理像素。
+        var prevDpiContext = SetThreadDpiAwarenessContext(PerMonitorAwareV2);
+        var screens = Screen.AllScreens.Select(s => (s.DeviceName, s.Bounds)).ToArray();
+        var virtualScreen = SystemInformation.VirtualScreen;
+        SetThreadDpiAwarenessContext(prevDpiContext);
+
+        var available = pnlGraph.ClientSize;
+        float scale = Math.Min(
+            (available.Width - GRAPH_MARGIN * 2f) / virtualScreen.Width,
+            (available.Height - GRAPH_MARGIN * 2f) / virtualScreen.Height);
+        if (scale <= 0) return;
+
+        var graphSize = new Size((int)(virtualScreen.Width * scale), (int)(virtualScreen.Height * scale));
+        var origin = new Point((available.Width - graphSize.Width) / 2, (available.Height - graphSize.Height) / 2);
+
+        foreach (var s in screens)
         {
             string text = "";
             if (tscboFrom.SelectedItem != null)
@@ -362,22 +381,18 @@ public partial class ControlBox : Form
 
             text = RemoveUnneededChars(text);
 
-            var location = Centerize(
-                new Rectangle(
-                    SystemInformation.VirtualScreen.X / MINI_MAP_DIVISOR,
-                    SystemInformation.VirtualScreen.Y / MINI_MAP_DIVISOR,
-                    SystemInformation.VirtualScreen.Width / MINI_MAP_DIVISOR,
-                    SystemInformation.VirtualScreen.Height / MINI_MAP_DIVISOR),
-                pnlGraph.Size, 50);
-            location.Offset(s.Bounds.X / MINI_MAP_DIVISOR, s.Bounds.Y / MINI_MAP_DIVISOR);
-
             var display = new Label
             {
+                AutoSize = false,
                 BorderStyle = BorderStyle.FixedSingle,
                 BackColor = Color.LightCyan,
                 Text = text,
-                Location = location,
-                Size = new Size(s.Bounds.Width / MINI_MAP_DIVISOR, s.Bounds.Height / MINI_MAP_DIVISOR),
+                Location = new Point(
+                    origin.X + (int)((s.Bounds.X - virtualScreen.X) * scale),
+                    origin.Y + (int)((s.Bounds.Y - virtualScreen.Y) * scale)),
+                Size = new Size(
+                    Math.Max(1, (int)(s.Bounds.Width * scale)),
+                    Math.Max(1, (int)(s.Bounds.Height * scale))),
                 TextAlign = ContentAlignment.MiddleCenter
             };
 
@@ -496,9 +511,4 @@ public partial class ControlBox : Form
     private void numScaleB_ValueChanged(object sender, EventArgs e) { }
     private void numScaleG_ValueChanged(object sender, EventArgs e) { }
     private void numScaleR_ValueChanged(object sender, EventArgs e) { }
-
-    private void fctbReadme_TextChanged(object sender, TextChangedEventArgs e)
-    {
-        fctbReadme.OnSyntaxHighlight(e);
-    }
 }

@@ -37,7 +37,7 @@
 		<PackageReference Include="SharpDX.Direct3D11" Version="4.2.0" />
 		<PackageReference Include="SharpDX.DXGI" Version="4.2.0" />
 		<PackageReference Include="SharpDX.Mathematics" Version="4.2.0" />
-		<PackageReference Include="Vax-FCTB" Version="2.17.0.207" />
+		<PackageReference Include="CDS.Markdown.Lite" Version="1.5.7" />
 	</ItemGroup>
 
 	<ItemGroup>
