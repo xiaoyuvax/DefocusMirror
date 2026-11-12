@@ -349,9 +349,10 @@ public partial class ControlBox : Form
 
         // 该进程按系统 DPI 虚拟化屏幕坐标，各屏会被缩成接近等大且桌面上出现假空隙；切到每屏感知再取物理像素。
         var prevDpiContext = SetThreadDpiAwarenessContext(PerMonitorAwareV2);
-        var screens = Screen.AllScreens.Select(s => (s.DeviceName, s.Bounds)).ToArray();
-        var virtualScreen = SystemInformation.VirtualScreen;
+        var screens = Screen.AllScreens.Select(s => (Screen: s, s.Bounds)).ToArray();
         SetThreadDpiAwarenessContext(prevDpiContext);
+
+        var virtualScreen = screens.Select(s => s.Bounds).Aggregate(Rectangle.Union);
 
         var available = pnlGraph.ClientSize;
         float scale = Math.Min(
@@ -362,22 +363,22 @@ public partial class ControlBox : Form
         var graphSize = new Size((int)(virtualScreen.Width * scale), (int)(virtualScreen.Height * scale));
         var origin = new Point((available.Width - graphSize.Width) / 2, (available.Height - graphSize.Height) / 2);
 
-        foreach (var s in screens)
+        foreach (var (screen, bounds) in screens)
         {
             string text = "";
             if (tscboFrom.SelectedItem != null)
-                text = $"{s.DeviceName}{(tscboFrom.SelectedItem.ToString().EndsWith(RemoveUnneededChars(s.DeviceName)) ? $":[{srcLabel}]" : "")}";
+                text = $"{screen.DeviceName}{(tscboFrom.SelectedItem.ToString().EndsWith(RemoveUnneededChars(screen.DeviceName)) ? $":[{srcLabel}]" : "")}";
 
             if (tscboTo.SelectedItem != null)
             {
-                if (tscboTo.SelectedItem.ToString().EndsWith(RemoveUnneededChars(s.DeviceName)))
+                if (tscboTo.SelectedItem.ToString().EndsWith(RemoveUnneededChars(screen.DeviceName)))
                 {
-                    var text2 = $"{s.DeviceName}:[{mirrorLabel}]";
+                    var text2 = $"{screen.DeviceName}:[{mirrorLabel}]";
                     if (text.Contains(":[")) text += $"\r{text2}";
                     else text = text2;
                 }
             }
-            else text = s.DeviceName;
+            else text = screen.DeviceName;
 
             text = RemoveUnneededChars(text);
 
@@ -388,11 +389,11 @@ public partial class ControlBox : Form
                 BackColor = Color.LightCyan,
                 Text = text,
                 Location = new Point(
-                    origin.X + (int)((s.Bounds.X - virtualScreen.X) * scale),
-                    origin.Y + (int)((s.Bounds.Y - virtualScreen.Y) * scale)),
+                    origin.X + (int)((bounds.X - virtualScreen.X) * scale),
+                    origin.Y + (int)((bounds.Y - virtualScreen.Y) * scale)),
                 Size = new Size(
-                    Math.Max(1, (int)(s.Bounds.Width * scale)),
-                    Math.Max(1, (int)(s.Bounds.Height * scale))),
+                    Math.Max(1, (int)(bounds.Width * scale)),
+                    Math.Max(1, (int)(bounds.Height * scale))),
                 TextAlign = ContentAlignment.MiddleCenter
             };
 
@@ -405,8 +406,8 @@ public partial class ControlBox : Form
                     StartPosition = FormStartPosition.Manual,
                     Opacity = 0.8f
                 };
-                var stickerLocation = Centerize(sticker.Bounds, s.Bounds.Size);
-                stickerLocation.Offset(s.Bounds.X, s.Bounds.Y);
+                var stickerLocation = Centerize(sticker.Bounds, screen.Bounds.Size);
+                stickerLocation.Offset(screen.Bounds.X, screen.Bounds.Y);
                 sticker.Location = stickerLocation;
                 sticker.TopMost = true;
                 sticker.Show();
