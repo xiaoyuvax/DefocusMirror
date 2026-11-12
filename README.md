@@ -78,8 +78,10 @@ dotnet build DefocusMirror.sln
 
 ## 参考文献 / References
 
-1. Smith, E.L. et al. "Myopia: why the retina stops inhibiting eye growth." *Scientific Reports* 12, 21704 (2022). https://doi.org/10.1038/s41598-022-26254-3
+1. Swiatczak, B. & Schaeffel, F. "Myopia: why the retina stops inhibiting eye growth." *Scientific Reports* 12, 21704 (2022). https://doi.org/10.1038/s41598-022-26323-7
 2. Atchison, D.A. & Smith, G. *Optics of the Human Eye*. Butterworth-Heinemann, 2000.（LCA 参考值）
+
+`DefocusMirror/paper.pdf` 是第 1 篇论文的副本，依 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 许可分发，著作权归原作者所有。 / A copy of the first paper, distributed under CC BY 4.0, copyright remains with the original authors.
 
 ---
 

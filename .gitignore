@@ -301,6 +301,9 @@ paket-files/
 .idea/
 *.sln.iml
 
+# Local agent traces (OpenLoop)
+.openloop/
+
 # CodeRush
 .cr/
 
