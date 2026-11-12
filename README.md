@@ -1,5 +1,7 @@
 # DefocusMirror
 
+[English guide](README.en.md) · [中文完整说明](README.zh.md)
+
 利用人眼色差（LCA）原理，将桌面画面以分通道模糊的方式镜像到副屏，模拟视网膜离焦信号，用于近视/远视防控的辅助研究工具。
 
 ---

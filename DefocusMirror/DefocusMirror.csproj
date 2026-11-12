@@ -62,17 +62,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<EmbeddedResource Include="ReadmeZh.md" LogicalName="DefocusMirror.ReadmeZh.md" />
-		<EmbeddedResource Include="ReadmeEn.md" LogicalName="DefocusMirror.ReadmeEn.md" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<None Update="ReadmeZh.md">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
-		<None Update="ReadmeEn.md">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
+		<None Include="..\README.zh.md" Link="ReadmeZh.md" CopyToOutputDirectory="PreserveNewest" />
+		<None Include="..\README.en.md" Link="ReadmeEn.md" CopyToOutputDirectory="PreserveNewest" />
 	</ItemGroup>
 
 	<ItemGroup>
